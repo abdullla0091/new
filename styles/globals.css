@@ -1,0 +1,61 @@
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 248, 249, 250;
+  --background-end-rgb: 255, 255, 255;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --muted-foreground-rgb: 100, 116, 139;
+}
+
+/* Dark mode variables */
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 15, 25;
+  --background-end-rgb: 0, 0, 0;
+  --border-color: #1e293b;
+  --card-bg: #0f172a;
+  --muted-foreground-rgb: 148, 163, 184;
+}
+
+/* Base Styles */
+body {
+  margin: 0;
+  padding: 0;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input:focus, button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* For language direction support (both LTR and RTL) */
+[dir="rtl"] .userMessage {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir="rtl"] .modelMessage {
+  margin-right: auto;
+  margin-left: 0;
+} 

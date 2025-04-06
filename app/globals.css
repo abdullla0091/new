@@ -1,0 +1,446 @@
+/* Import Google Fonts first */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap');
+/* Import professional fonts for English content */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Local Kurdish font from project folder - fixed absolute path with improved loading strategy */
+@font-face {
+  font-family: 'NizarBukra';
+  src: url('/kurdish-font/NizarBukraRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  font-feature-settings: "kern", "liga", "calt";
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.5rem;
+
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 248, 249, 250;
+    --background-end-rgb: 255, 255, 255;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --font-sans: Space Grotesk, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+    --font-display: Syne, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+    --font-kurdish: 'NizarBukra', 'Vazirmatn', 'Noto Sans Arabic', 'Amiri', sans-serif;
+    --muted-foreground-rgb: 100, 116, 139;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 10, 15, 25;
+    --background-end-rgb: 0, 0, 0;
+    --border-color: #1e293b;
+    --card-bg: #0f172a;
+    --muted-foreground-rgb: 148, 163, 184;
+  }
+}
+
+/* Remove the problematic Tailwind utilities and use standard CSS instead */
+* {
+  border: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input:focus, button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Navigation button focus style override */
+.flex.justify-around button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* For language direction support (both LTR and RTL) */
+[dir="rtl"] .userMessage {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir="rtl"] .modelMessage {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* Kurdish text specific styling */
+.kurdish {
+  font-family: var(--font-kurdish);
+  direction: rtl; /* Kurdish is typically written right-to-left */
+  line-height: 1.8; /* Improved line height for Kurdish text */
+  letter-spacing: 0.01em; /* Slight letter spacing adjustment for readability */
+  font-size: 1.05em; /* Slightly larger font size for better readability */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* When the app is in Kurdish language mode, apply RTL direction to the entire app */
+html[lang="ku"] {
+  direction: rtl;
+}
+
+html[lang="ku"] body {
+  font-family: var(--font-kurdish);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apply Kurdish font to all text elements through inheritance when the root has these classes */
+html.use-local-kurdish * {
+  font-family: var(--font-kurdish);
+}
+
+/* Kurdish specific button styles to account for RTL */
+html[lang="ku"] button svg, 
+html[lang="ku"] a svg {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+html[lang="ku"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Kurdish text beautification */
+html[lang="ku"] h1, 
+html[lang="ku"] h2, 
+html[lang="ku"] h3 {
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  font-size: 1.1em; /* Slightly larger headers */
+}
+
+html[lang="ku"] p {
+  line-height: 1.8;
+}
+
+/* Font styles specific to different Kurdish font families */
+html[lang="ku"] .use-local-kurdish {
+  font-family: 'NizarBukra', sans-serif;
+}
+
+html[lang="ku"] .use-vazirmatn {
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+html[lang="ku"] .use-amiri {
+  font-family: 'Amiri', serif;
+}
+
+/* Desktop gradient background - remove this as it's handled by the page itself */
+@media (min-width: 1024px) {
+  body {
+    background: none;
+  }
+}
+
+/* Animation for slow gradient movement */
+@keyframes gradient-slow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-slow {
+  background-size: 200% 200%;
+  animation: gradient-slow 15s ease infinite;
+}
+
+/* Navigation bar styling */
+/* Styles for desktop top navigation bar */
+@media (min-width: 768px) {
+  /* Add top padding to account for the fixed top navbar in non-home pages */
+  main:not(.landing-page-main) {
+    padding-top: 4rem; /* 64px - matches the height of the top navbar */
+  }
+  
+  /* Glassmorphism effect for top navbar */
+  .fixed.top-0 {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Improve nav link hover effect */
+  .fixed.top-0 nav a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Active link indicator */
+  .fixed.top-0 nav a[class*="bg-white"]::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #a855f7, #6366f1);
+    border-radius: 2px;
+  }
+}
+
+/* TabBar mobile-specific styling */
+@media (max-width: 768px) {
+  /* Add padding to the bottom of the main content area to account for the TabBar */
+  html:not([lang="ku"]) body main {
+    padding-bottom: 60px; /* Height of the TabBar */
+  }
+  
+  /* RTL support for Kurdish language */
+  html[lang="ku"] body main {
+    padding-bottom: 60px; /* Height of the TabBar */
+  }
+
+  /* Ensure the TabBar stays on top of content */
+  .fixed.bottom-0 {
+    z-index: 40;
+  }
+}
+
+/* RTL support for desktop top navigation */
+html[lang="ku"] .fixed.top-0 nav {
+  flex-direction: row-reverse;
+}
+
+html[lang="ku"] .fixed.top-0 .flex.justify-between {
+  flex-direction: row-reverse;
+}
+
+html[lang="ku"] .fixed.top-0 nav a {
+  flex-direction: row-reverse;
+}
+
+html[lang="ku"] .fixed.top-0 .flex.items-center.gap-4 {
+  flex-direction: row-reverse;
+}
+
+/* Modern navbar animations */
+.modern-navbar {
+  position: relative;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-navbar.scrolled {
+  background-color: rgba(49, 46, 129, 0.75);
+  box-shadow: 0 10px 30px -10px rgba(20, 20, 50, 0.2);
+}
+
+.modern-navbar-link {
+  position: relative;
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.modern-navbar-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to right, #c084fc, #a855f7);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.modern-navbar-link:hover::after,
+.modern-navbar-link.active::after {
+  width: 100%;
+}
+
+.nav-button-hover {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.nav-button-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.nav-button-hover:hover::before {
+  left: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+/* RTL and Kurdish message styling */
+html[lang="ku"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* Special handling for mixed language messages */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Improved Kurdish message bubbles */
+html[lang="ku"] .userMessage {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+html[lang="ku"] .modelMessage {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* Improve message text readability */
+.kurdish {
+  font-family: var(--font-kurdish);
+  direction: rtl;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+  font-size: 1.05em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fix the input padding for RTL mode */
+html[lang="ku"] textarea.kurdish {
+  padding-right: 1rem !important;
+  padding-left: 5.5rem !important;
+}
+
+/* Kurdish message bubble spacing adjustments */
+html[lang="ku"] [dir="rtl"].relative.group {
+  margin-left: 3rem !important;
+  margin-right: 0 !important;
+}
+
+html[lang="ku"] [dir="ltr"].relative.group {
+  margin-right: 3rem !important;
+  margin-left: 0 !important;
+}
+
+/* Ensure correct alignment in message bubbles */
+[dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] div {
+  text-align: right;
+  unicode-bidi: bidi-override;
+}
+
+/* Fix dropdown menus in RTL mode */
+html[lang="ku"] .relative > [data-radix-popper-content-wrapper] {
+  right: auto !important;
+  left: 0 !important;
+}

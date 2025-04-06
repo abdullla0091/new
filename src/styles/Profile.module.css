@@ -1,0 +1,35 @@
+/* Styles for the Profile Page */
+.container {
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: rgb(var(--foreground-rgb));
+}
+
+.infoSection {
+  margin-bottom: 1rem;
+}
+
+.infoLabel {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.logoutButton {
+  padding: 0.6rem 1.2rem;
+  background-color: #dc2626; /* Red */
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.logoutButton:hover {
+  background-color: #b91c1c; /* Darker red */
+}

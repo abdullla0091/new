@@ -1,0 +1,389 @@
+/* Styles for the Chat Interface components used in [characterId].tsx */
+/* Using :root variables from globals.css or AppLayout */
+
+/* --- Chat Layout (Used as main container within chat page) --- */
+.chatLayout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%; /* Fill the mainContent area from _app.tsx */
+  background-color: var(--card-bg);
+  overflow: hidden;
+}
+
+/* --- Header --- */
+.chatHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 1rem 0;
+  color: rgb(var(--foreground-rgb));
+}
+
+.controlsGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* --- Character Selector --- */
+.characterSelector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.radioOption {
+  display: inline-block;
+}
+
+.radioOption input[type="radio"] {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+}
+
+.radioOption label {
+  display: inline-block;
+  background-color: transparent;
+  padding: 0.3rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--control-text);
+  border: 1px solid var(--control-border);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.radioOption input[type="radio"]:hover + label {
+  background-color: var(--control-bg-hover);
+}
+
+.radioOption input[type="radio"]:checked + label {
+  background-color: var(--control-selected-bg);
+  color: var(--control-selected-text);
+  border-color: var(--control-selected-border);
+}
+
+.radioOption input[type="radio"]:disabled + label {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: transparent !important;
+  color: var(--control-text) !important;
+  border-color: var(--control-border) !important;
+}
+
+/* --- Language Toggle --- */
+.languageToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.languageLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--control-text);
+  user-select: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--toggle-bg);
+  transition: .3s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--toggle-slider);
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--toggle-bg-checked);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--toggle-bg-checked);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+input:disabled + .slider {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* --- Chat Messages Area --- */
+.chatMessages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Increased gap */
+}
+
+.messageBubble {
+  padding: 0.65rem 1rem; /* Adjusted padding slightly */
+  border-radius: 1.125rem; /* More rounded */
+  max-width: 80%;
+  line-height: 1.5;
+  word-wrap: break-word;
+  border: 1px solid transparent; /* Make border transparent initially */
+  /* Removed box-shadow for cleaner look */
+}
+
+.messageBubble p {
+  margin: 0;
+}
+
+.userMessage {
+  background-color: var(--primary-color); /* Use CSS variable */
+  color: var(--user-message-text); /* Use CSS variable */
+  align-self: flex-end;
+  border-radius: 1.125rem 1.125rem 0.25rem 1.125rem; /* Less rounded bottom-right */
+  border: none; /* Remove border for user message */
+}
+
+.modelMessage {
+  background-color: var(--model-message-bg); /* Use CSS variable */
+  color: var(--model-message-text); /* Use CSS variable */
+  align-self: flex-start;
+  border-radius: 1.125rem 1.125rem 1.125rem 0.25rem; /* Less rounded bottom-left */
+  border: 1px solid var(--border-color); /* Use CSS variable */
+}
+
+@media (prefers-color-scheme: dark) {
+  .modelMessage {
+    background-color: var(--model-message-bg); /* Use CSS variable */
+    color: var(--model-message-text); /* Use CSS variable */
+    border: 1px solid var(--border-color); /* Use CSS variable */
+  }
+}
+
+.emptyChatMessage {
+  text-align: center;
+  color: rgb(var(--muted-foreground-rgb));
+  margin: auto;
+  font-size: 0.875rem;
+}
+
+/* --- Loading Indicator --- */
+.loadingIndicator {
+  align-self: flex-start;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem;
+  border-bottom-left-radius: 0.5rem;
+  background-color: var(--model-message-bg);
+  display: flex;
+  gap: 0.25rem;
+}
+
+.loadingIndicator span {
+  width: 8px;
+  height: 8px;
+  background-color: rgb(var(--muted-foreground-rgb));
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loadingIndicator span:nth-child(1) { animation-delay: -0.32s; }
+.loadingIndicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+/* --- Input Area --- */
+.chatInputArea {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  flex-shrink: 0;
+}
+
+.inputForm {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.inputField {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: rgb(var(--foreground-rgb));
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputField::placeholder {
+  color: rgb(var(--muted-foreground-rgb));
+}
+
+.inputField:focus {
+  border-color: var(--primary-color);
+}
+
+.sendButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: var(--user-message-text);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: var(--primary-hover-color);
+}
+
+.sendButton:disabled {
+  background-color: #94a3b8; /* slate-400 */
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sendButton:disabled {
+    background-color: #475569; /* slate-600 */
+  }
+}
+
+/* --- Microphone Button --- */
+.micButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--control-border);
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--control-text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.micButton:hover:not(:disabled) {
+  background-color: var(--control-bg-hover);
+  border-color: var(--control-selected-border);
+  color: var(--control-selected-text);
+}
+
+.micButton.recording {
+  background-color: #fee2e2; /* Light red background when recording */
+  border-color: #fca5a5; /* Red border */
+  color: #ef4444; /* Red icon */
+}
+
+@media (prefers-color-scheme: dark) {
+  .micButton.recording {
+    background-color: #7f1d1d; /* Dark red background */
+    border-color: #ef4444; /* Red border */
+    color: #fca5a5; /* Lighter red icon */
+  }
+}
+
+.micButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 640px) {
+  .chatHeader {
+    padding: 0.75rem 1rem;
+  }
+  .title {
+    font-size: 1.1rem;
+  }
+  .controlsGroup {
+    gap: 0.5rem;
+  }
+  .radioOption label {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  .languageLabel {
+    font-size: 0.8rem;
+  }
+  .chatMessages {
+    padding: 1rem;
+  }
+  .chatInputArea {
+    padding: 0.75rem 1rem;
+  }
+  .inputField {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+  }
+  .sendButton {
+    width: 40px;
+    height: 40px;
+  }
+  .sendButton svg {
+    width: 18px;
+    height: 18px;
+  }
+  .micButton {
+    width: 40px;
+    height: 40px;
+  }
+  .micButton svg {
+    width: 18px;
+    height: 18px;
+  }
+}

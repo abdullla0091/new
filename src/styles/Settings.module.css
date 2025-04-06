@@ -1,0 +1,80 @@
+/* Styles for the Settings Page */
+.container {
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: rgb(var(--foreground-rgb));
+}
+
+.settingItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settingLabel {
+  font-size: 1rem;
+  color: rgb(var(--foreground-rgb));
+}
+
+/* Reusing language toggle styles from Home.module.css might be better,
+   but defining basic switch styles here for simplicity */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px; /* Slightly larger */
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--toggle-bg);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--toggle-slider);
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--toggle-bg-checked);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--toggle-bg-checked);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+input:disabled + .slider {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

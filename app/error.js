@@ -1,0 +1,40 @@
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Home, RefreshCcw } from "lucide-react";
+
+export default function Error({
+  error,
+  reset,
+}) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error("Application error:", error);
+  }, [error]);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 text-white">
+      <div className="text-center p-8 rounded-lg bg-indigo-900/30 backdrop-blur-md border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.15)]">
+        <h1 className="text-4xl font-bold mb-4">Something went wrong!</h1>
+        <p className="text-xl mb-8">An unexpected error occurred in the application.</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button 
+            onClick={reset}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 rounded-lg text-lg shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+          >
+            <RefreshCcw className="mr-2 h-5 w-5" />
+            Try again
+          </Button>
+          <Link href="/">
+            <Button variant="outline" className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white transition-colors px-6 py-6 rounded-lg text-lg">
+              <Home className="mr-2 h-5 w-5" />
+              Go Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+} 

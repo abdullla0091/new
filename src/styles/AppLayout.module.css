@@ -1,0 +1,71 @@
+/* --- App Layout --- */
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  max-height: 100vh; /* Prevent exceeding viewport */
+  overflow: hidden; /* Prevent scrolling on the main container */
+  background-color: rgb(var(--background-start-rgb)); /* Use root variables */
+  font-family: var(--font-sans);
+  color: rgb(var(--foreground-rgb));
+}
+
+.mainContent {
+  flex-grow: 1; /* Takes up all space above the nav bar */
+  overflow-y: auto; /* Allows the content *within* this area to scroll if needed */
+  /* The actual page content (like the chat interface) will be placed here */
+}
+
+/* --- Bottom Navigation --- */
+.bottomNav {
+  display: flex;
+  justify-content: space-around; /* Evenly space items */
+  align-items: center;
+  height: 60px; /* Fixed height for the nav bar */
+  background-color: var(--card-bg); /* Use card background */
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  flex-shrink: 0; /* Prevent nav bar from shrinking */
+  z-index: 100; /* Ensure it's above content */
+}
+
+.navButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: rgb(var(--muted-foreground-rgb)); /* Default color */
+  font-size: 0.75rem; /* Smaller text */
+  line-height: 1;
+  transition: color 0.2s ease-in-out;
+  flex-grow: 1; /* Allow buttons to take up space */
+  max-width: 25%; /* Limit width */
+}
+
+.navButton span:first-child { /* Style for the icon */
+  font-size: 1.25rem; /* Icon size */
+  margin-bottom: 2px;
+}
+
+.navButton:hover {
+  color: rgb(var(--foreground-rgb)); /* Darker color on hover */
+}
+
+.navButton.active {
+  color: var(--primary-color); /* Active color */
+  font-weight: 500;
+}
+
+/* Hide text labels on very small screens if needed */
+/* @media (max-width: 360px) {
+  .navButton span:last-child {
+    display: none;
+  }
+  .navButton span:first-child {
+     font-size: 1.5rem;
+  }
+} */

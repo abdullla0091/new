@@ -1,0 +1,190 @@
+/* Using :root variables from globals.css or AppLayout */
+
+.exploreContainer {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mainTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: rgb(var(--foreground-rgb));
+  text-align: center;
+}
+
+/* Search */
+.searchContainer {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px; /* Pill shape */
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: rgb(var(--foreground-rgb));
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput::placeholder {
+  color: rgb(var(--muted-foreground-rgb));
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2); /* Focus ring */
+}
+/* Removed redundant :root definitions - they are in globals.css */
+
+
+/* Tag Filters */
+.tagFilterContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.tagButton {
+  background-color: transparent;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--control-text);
+  border: 1px solid var(--control-border);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tagButton:hover {
+  background-color: var(--control-bg-hover);
+  border-color: var(--control-selected-border);
+}
+
+.tagButton.activeTag {
+  background-color: var(--control-selected-bg);
+  color: var(--control-selected-text);
+  border-color: var(--control-selected-border);
+  font-weight: 600;
+}
+
+/* Character Grid (reusing some styles from HomeFeed) */
+.characterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.characterCard {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid var(--border-color);
+}
+
+.characterCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.cardPlaceholder {
+  height: 120px;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 2rem;
+}
+@media (prefers-color-scheme: dark) {
+  .cardPlaceholder {
+    background-color: #334155;
+    color: #64748b;
+  }
+}
+
+.cardInfo {
+  padding: 1rem;
+  flex-grow: 1; /* Allow info to take space */
+}
+
+.cardInfo h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardInfo p {
+  font-size: 0.875rem;
+  color: rgb(var(--muted-foreground-rgb));
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Added standard property */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardTags {
+  padding: 0 1rem 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  background-color: var(--model-message-bg); /* Use model message bg for tags */
+  color: rgb(var(--muted-foreground-rgb));
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.noResults {
+  text-align: center;
+  color: rgb(var(--muted-foreground-rgb));
+  margin-top: 2rem;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .exploreContainer {
+    padding: 1rem;
+  }
+  .mainTitle {
+    font-size: 1.5rem;
+  }
+  .characterGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .cardInfo {
+    padding: 0.75rem;
+  }
+  .cardTags {
+    padding: 0 0.75rem 0.6rem 0.75rem;
+  }
+}

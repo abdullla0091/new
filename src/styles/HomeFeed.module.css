@@ -1,0 +1,181 @@
+/* Using :root variables from globals.css or AppLayout */
+
+.homeContainer {
+  padding: 1.5rem;
+  max-width: 1200px; /* Limit width on larger screens */
+  margin: 0 auto; /* Center container */
+}
+
+.mainTitle {
+  font-size: 1.75rem; /* 28px */
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: rgb(var(--foreground-rgb));
+}
+
+.characterSection h2,
+.recentChatsSection h2 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: rgb(var(--foreground-rgb));
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.characterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.characterCard {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid var(--border-color);
+}
+
+.characterCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.cardPlaceholder {
+  height: 120px; /* Placeholder height for avatar */
+  background-color: #e2e8f0; /* slate-200 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8; /* slate-400 */
+  font-size: 2rem;
+}
+@media (prefers-color-scheme: dark) {
+  .cardPlaceholder {
+    background-color: #334155; /* slate-700 */
+    color: #64748b; /* slate-500 */
+  }
+}
+
+.cardInfo {
+  padding: 1rem;
+}
+
+.cardInfo h3 {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardInfo p {
+  font-size: 0.875rem; /* 14px */
+  color: rgb(var(--muted-foreground-rgb));
+  margin: 0;
+  line-height: 1.4;
+  /* Limit description lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Recent Chats */
+.recentChatsSection {
+  margin-bottom: 2rem;
+}
+
+.recentChatsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recentChatItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.recentChatItem:hover {
+  background-color: var(--control-bg-hover);
+}
+
+.recentChatInfo {
+  flex-grow: 1;
+  overflow: hidden; /* Prevent text overflow */
+}
+
+.recentChatInfo h4 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 0 0.1rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recentChatInfo p {
+  font-size: 0.875rem;
+  color: rgb(var(--muted-foreground-rgb));
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recentChatTimestamp {
+  font-size: 0.75rem;
+  color: rgb(var(--muted-foreground-rgb));
+  flex-shrink: 0; /* Prevent timestamp from shrinking */
+  margin-left: auto; /* Push timestamp to the right */
+}
+
+.noRecentChats {
+  color: rgb(var(--muted-foreground-rgb));
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .homeContainer {
+    padding: 1rem;
+  }
+  .mainTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .characterSection h2,
+  .recentChatsSection h2 {
+    font-size: 1.1rem;
+  }
+  .characterGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Smaller cards on mobile */
+    gap: 1rem;
+  }
+  .cardInfo {
+    padding: 0.75rem;
+  }
+  .recentChatItem {
+    padding: 0.75rem;
+  }
+}
