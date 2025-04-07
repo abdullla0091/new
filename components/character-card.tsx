@@ -82,7 +82,10 @@ export default function CharacterCard({ character }: { character: Character }) {
   return (
     <div
       className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.1)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 relative"
-      onClick={() => router.push(`/chat/${character.id}`)}
+      onClick={(e) => {
+        e.preventDefault();
+        router.push(`/chat/${character.id}`);
+      }}
     >
       {/* Action Buttons */}
       <div className="absolute top-2 right-2 flex space-x-1 z-10">
@@ -143,6 +146,7 @@ export default function CharacterCard({ character }: { character: Character }) {
             className="text-xs text-purple-300 hover:text-white hover:bg-purple-600/30 w-1/2"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               router.push(`/chat/${characterId}`);
             }}
           >

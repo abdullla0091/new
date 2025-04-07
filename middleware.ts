@@ -9,8 +9,10 @@ export async function middleware(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  // If we're missing environment variables and not on the landing page, redirect to landing
-  if ((!supabaseUrl || !supabaseKey) && req.nextUrl.pathname !== '/') {
+  // If we're missing environment variables and not on the landing page or chat page, redirect to landing
+  if ((!supabaseUrl || !supabaseKey) && 
+      req.nextUrl.pathname !== '/' && 
+      !req.nextUrl.pathname.startsWith('/chat/')) {
     return NextResponse.redirect(new URL('/', req.url))
   }
   
