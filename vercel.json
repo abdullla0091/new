@@ -7,6 +7,7 @@
   "outputDirectory": ".next",
   "regions": ["cdg1"],
   "env": {
+    "NODE_ENV": "production",
     "NEXT_PUBLIC_APP_URL": "https://my-next-app.vercel.app"
   },
   "builds": [
@@ -15,10 +16,15 @@
       "use": "@vercel/next"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "src": "/chat/(.*)",
+      "dest": "/chat/[id]?id=$1",
+      "continue": true
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "headers": [

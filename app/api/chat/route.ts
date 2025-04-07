@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { getCharacterById } from '@/lib/characters'; // Use alias path
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from "@/auth"
+// Import auth but don't use it directly yet - we'll check its type
+import * as authModule from "@/auth";
 import { db } from "@/lib/db"
 
 // Define the expected structure of the request body
@@ -138,14 +139,21 @@ async function generateWithFallback(
 
 export async function POST(req: NextRequest) {
   try {
-    // Get current user information with better error handling
+    // Safely handle auth regardless of what form it takes (object or function)
     let userName = "User";
+    
     try {
-      // Check if auth is a function or an object based on environment
+      const auth = authModule.auth;
       if (typeof auth === 'function') {
-        const session = await auth();
-        userName = session?.user?.name || session?.user?.email?.split('@')[0] || "User";
-      } else if (auth && typeof auth.isAuthenticated === 'function') {
+        try {
+          // If auth is a function, try to call it
+          const session = await auth();
+          userName = session?.user?.name || session?.user?.email?.split('@')[0] || "User";
+        } catch (e) {
+          console.log("Auth function error:", e);
+          // Continue with default username
+        }
+      } else if (auth && typeof auth === 'object' && typeof auth.isAuthenticated === 'function') {
         // If auth is an object with isAuthenticated method
         const isAuthenticated = auth.isAuthenticated();
         userName = isAuthenticated ? "User" : "Guest";
@@ -397,7 +405,7 @@ Additional character guidelines:
 
 export async function GET() {
   try {
-    const session = await auth()
+    const session = await authModule.auth()
     
     if (!session?.user?.id) {
       return new NextResponse("Unauthorized", { status: 401 })

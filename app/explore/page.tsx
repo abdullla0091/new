@@ -175,7 +175,8 @@ export default function ExplorePage() {
   };
 
   const handleCharacterClick = (id: string) => {
-    router.push(`/chat/${id}`);
+    // Use direct window.location navigation instead of router.push
+    window.location.href = `/chat/${id}`;
   };
 
   const applyFilters = () => {
@@ -335,57 +336,36 @@ export default function ExplorePage() {
         </div>
 
         {/* Character Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {loading ? (
+            // Loading skeletons
+            Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
-                <div className="flex flex-col items-center">
-                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-3 w-16 mb-2" />
-                  <Skeleton className="h-3 w-full mb-1" />
-                  <Skeleton className="h-3 w-5/6" />
+                <div className="flex flex-col items-center animate-pulse">
+                  <div className="rounded-full bg-indigo-700/50 h-16 w-16 mb-3"></div>
+                  <div className="h-4 bg-indigo-700/50 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-indigo-700/50 rounded w-1/2 mb-2"></div>
+                  <div className="h-2 bg-indigo-700/50 rounded w-5/6 mb-1"></div>
+                  <div className="h-2 bg-indigo-700/50 rounded w-full"></div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : filteredCharacters.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredCharacters.map(char => (
-              <div 
-                key={char.id} 
-                className="cursor-pointer transform hover:scale-[1.02] transition-transform"
-              >
-                <CharacterCard character={char} />
-                
-                {/* Custom character badge */}
-                {(char as any).isCustom && (
-                  <div className="mt-1 flex justify-center">
-                    <Badge variant="outline" className="flex items-center gap-1 text-xs bg-indigo-800/40 border-purple-500/20 text-purple-300">
-                      <Sparkles className="h-3 w-3" />
-                      Custom
-                    </Badge>
-                  </div>
-                )}
+            ))
+          ) : filteredCharacters.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
+              <Search className="h-12 w-12 mb-4 opacity-50" />
+              <h3 className="text-xl font-medium mb-2">No characters found</h3>
+              <p className="text-sm text-center max-w-md">
+                Try adjusting your filters or search term to find what you're looking for.
+              </p>
+            </div>
+          ) : (
+            filteredCharacters.map((character) => (
+              <div key={character.id} onClick={() => handleCharacterClick(character.id)}>
+                <CharacterCard character={character} />
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 border border-purple-500/20 rounded-xl bg-indigo-900/30 backdrop-blur-md">
-            <Sparkles className="h-12 w-12 mx-auto mb-4 text-purple-400 opacity-50" />
-            <h3 className="text-xl font-semibold mb-2 text-purple-200">No Characters Found</h3>
-            <p className="text-gray-300 max-w-md mx-auto mb-6">
-              Try adjusting your search or filters to find characters, or create your own custom character.
-            </p>
-            <Button 
-              onClick={() => router.push('/custom-characters')}
-              className="bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)] mx-auto flex items-center gap-2 text-white"
-            >
-              <Plus className="h-4 w-4" />
-              Create Your Own Character
-            </Button>
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

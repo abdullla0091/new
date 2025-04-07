@@ -27,6 +27,11 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/kurdish-font/NizarBukraRegular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="stylesheet" href="/kurdish-font/kurdish-font.css" />
+        <link 
+          rel="preload"
+          href="/navigation-fix.js"
+          as="script"
+        />
       </head>
       <body className={cn("min-h-screen antialiased", inter.className)}>
         <Providers>
@@ -34,6 +39,7 @@ export default function RootLayout({
         </Providers>
         
         <Script src="/kurdish-font-fix.js" strategy="lazyOnload" />
+        <Script src="/navigation-fix.js" strategy="beforeInteractive" />
       </body>
     </html>
   )

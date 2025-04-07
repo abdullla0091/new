@@ -38,6 +38,21 @@ interface Message {
   replyTo?: string; // ID of the message being replied to
 }
 
+// Add fallback navigation method at the top of the file
+function ensureDirectNavigation() {
+  // Check if this component was navigated to directly (not via client-side routing)
+  // If URL params don't match the current URL, reload the page to ensure proper loading
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentPath = window.location.pathname;
+
+  if (!currentPath.includes('/chat/')) {
+    // This is a failsafe - if we're on this page but the URL doesn't contain /chat/
+    // redirect to the correct URL with a full page load
+    window.location.href = currentPath;
+    return;
+  }
+}
+
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
@@ -55,6 +70,11 @@ export default function ChatPage() {
   
   // Ref for message elements to scroll to when clicked
   const messageRefs = useRef<{[key: string]: HTMLDivElement}>({});
+
+  // Add fallback navigation check on client-side
+  useEffect(() => {
+    ensureDirectNavigation();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
