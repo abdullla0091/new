@@ -30,6 +30,7 @@ export default function CharacterShowcase() {
   const showcaseCharacters = characters.slice(0, 6); // Show 6 characters instead of 4
   const [activeIndex, setActiveIndex] = useState(0)
   const { language, t } = useLanguage();
+  const isKurdish = language === "ku";
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -121,7 +122,10 @@ export default function CharacterShowcase() {
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-2 text-center md:text-left">{activeCharacter.name}</h3>
+                <h3 className={`text-2xl font-bold text-white mb-2 text-center md:text-left ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
+                  {/* Character names are typically in English/Latin script */}
+                  <span className={isKurdish ? 'en latin' : ''}>{activeCharacter.name}</span>
+                </h3>
                 
                 {/* Rating with stars */}
                 {activeCharacter.rating && (
@@ -147,8 +151,8 @@ export default function CharacterShowcase() {
                         </svg>
                       ))}
                     </div>
-                    <span className="text-yellow-300 font-medium ml-2">{activeCharacter.rating}</span>
-                    <span className="text-gray-400 text-sm ml-1">/ 5.0</span>
+                    <span className="text-yellow-300 font-medium ml-2 number">{activeCharacter.rating}</span>
+                    <span className={`text-gray-400 text-sm ml-1 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>/ 5.0</span>
                   </div>
                 )}
                 
@@ -157,9 +161,10 @@ export default function CharacterShowcase() {
                   {activeCharacter.tags.slice(0, 3).map((tag) => (
                     <span
                       key={tag}
-                      className="text-xs font-medium bg-purple-800/60 text-purple-200 rounded-full px-3 py-1 border border-purple-700/30"
+                      className={`text-xs font-medium bg-purple-800/60 text-purple-200 rounded-full px-3 py-1 border border-purple-700/30 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
                     >
-                      {tag}
+                      {/* Tag names are often in English/Latin */}
+                      <span className={isKurdish ? 'en latin' : ''}>{tag}</span>
                     </span>
                   ))}
                 </div>
@@ -167,19 +172,22 @@ export default function CharacterShowcase() {
 
               {/* Description and chat button */}
               <div className="md:col-span-8 flex flex-col justify-center order-2 md:order-2 px-0 md:px-6">
-                <div className="bg-indigo-950/40 backdrop-blur-sm rounded-xl p-6 mb-6 border border-purple-700/20 shadow-inner">
-                  <p className="text-gray-200 text-lg leading-relaxed">{activeCharacter.description}</p>
+                <div className={`bg-indigo-950/40 backdrop-blur-sm rounded-xl p-6 mb-6 border border-purple-700/20 shadow-inner ${isKurdish ? 'text-right' : ''}`}>
+                  <p className={`text-gray-200 text-lg leading-relaxed ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
+                    {/* Character descriptions might have mixed content */}
+                    {activeCharacter.description}
+                  </p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
                   <Link href={`/chat/${activeCharacter.id}`} className="w-full sm:w-auto">
-                    <Button className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl px-8 py-6 text-lg shadow-[0_5px_15px_rgba(107,33,168,0.4)] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(107,33,168,0.6)] hover:-translate-y-1 flex items-center justify-center">
+                    <Button className={`w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl px-8 py-6 text-lg shadow-[0_5px_15px_rgba(107,33,168,0.4)] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(107,33,168,0.6)] hover:-translate-y-1 flex items-center justify-center ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
                       {getTranslation("startChatting", "Start Chatting")}
-                      <ArrowRightCircle className="ml-2 h-5 w-5" />
+                      <ArrowRightCircle className={`${isKurdish ? 'mr-2' : 'ml-2'} h-5 w-5 icon-rtl-aware`} />
                     </Button>
                   </Link>
                   
-                  <div className="text-center sm:text-left text-sm text-gray-300">
+                  <div className={`text-center sm:text-left text-sm text-gray-300 ${isKurdish ? 'sm:text-right kurdish use-local-kurdish' : ''}`}>
                     <span className="block">
                       {getTranslation("instantResponse", "Get instant responses")}
                     </span>
@@ -195,7 +203,7 @@ export default function CharacterShowcase() {
       </div>
 
       {/* Character selection indicators */}
-      <div className="mt-8 flex justify-center space-x-2">
+      <div className={`mt-8 flex justify-center ${isKurdish ? 'space-x-reverse' : 'space-x-2'}`}>
         {showcaseCharacters.map((character, index) => (
           <button
             key={character.id}
@@ -214,11 +222,11 @@ export default function CharacterShowcase() {
                   alt={character.name} 
                   className="object-cover"
                 />
-                <AvatarFallback className="text-sm">{character.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className={`text-sm ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>{character.name.charAt(0)}</AvatarFallback>
               </Avatar>
             ) : (
               <div className={`w-full h-full rounded-full flex items-center justify-center bg-gradient-to-r ${getAvatarGradient(character.name)}`}>
-                <span className="text-white text-sm font-bold">{character.name.charAt(0)}</span>
+                <span className={`text-white text-sm font-bold ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>{character.name.charAt(0)}</span>
               </div>
             )}
           </button>

@@ -138,6 +138,11 @@ async function generateWithFallback(
 
 export async function POST(req: NextRequest) {
   try {
+    // Get current user information
+    // Replace the function call with using the isAuthenticated method
+    const isAuthenticated = auth.isAuthenticated();
+    const userName = isAuthenticated ? "User" : "Guest"; // Default username since we don't have real sessions
+    
     const body: ChatRequestBody = await req.json();
     const { 
       message, 
@@ -235,6 +240,8 @@ ${basePersonalityPrompt}
 
 ${languageInstruction}
 ${replyContext}
+
+${userName ? `USER INFORMATION: The user's name is "${userName}". Address them by name when appropriate and build a personal connection.` : ''}
 
 Additional character guidelines:
 1. Always stay in character as ${charName}.

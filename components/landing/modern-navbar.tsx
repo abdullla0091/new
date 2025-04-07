@@ -130,7 +130,7 @@ export default function ModernNavbar() {
               }}
             />
           </div>
-          <span className="font-display font-bold text-xl tracking-tighter">CharacterChat</span>
+          <span className={`font-display font-bold text-xl tracking-tighter ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>CharacterChat</span>
         </motion.div>
 
         {/* Desktop Navigation */}
@@ -148,7 +148,7 @@ export default function ModernNavbar() {
                 onClick={(e) => handleNavClick(e, link.href)}
                 className={`modern-navbar-link text-white/90 hover:text-white ${
                   activeSection === link.href.replace('#', '') ? 'active' : ''
-                }`}
+                } ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -177,10 +177,11 @@ export default function ModernNavbar() {
             <Link href="/home">
               <Button
                 variant="ghost"
-                className="nav-button-hover text-white hover:bg-white/10 font-medium"
+                className={`nav-button-hover text-white hover:bg-white/10 font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
+                style={{ unicodeBidi: 'plaintext' }}
               >
-                <HomeIcon className="h-4 w-4 mr-2" />
-                {t("dashboard")}
+                <HomeIcon className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                <span>{t("dashboard")}</span>
               </Button>
             </Link>
           </motion.div>
@@ -193,10 +194,11 @@ export default function ModernNavbar() {
             <Link href="/auth/signin">
               <Button
                 variant="outline"
-                className="nav-button-hover border-purple-400 text-purple-300 hover:bg-purple-500 hover:text-white transition-colors font-medium"
+                className={`nav-button-hover border-purple-400 text-purple-300 hover:bg-purple-500 hover:text-white transition-colors font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
+                style={{ unicodeBidi: 'plaintext' }}
               >
-                <LogIn className="h-4 w-4 mr-2" />
-                {t("signIn")}
+                <LogIn className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                <span>{t("signIn")}</span>
               </Button>
             </Link>
           </motion.div>
@@ -218,7 +220,7 @@ export default function ModernNavbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="md:hidden absolute top-full left-0 right-0 bg-indigo-950/95 backdrop-blur-lg border-b border-purple-500/20"
+            className={`md:hidden absolute top-full left-0 right-0 bg-indigo-950/95 backdrop-blur-lg border-b border-purple-500/20 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -231,23 +233,24 @@ export default function ModernNavbar() {
                   href={link.href}
                   className={`text-white py-2 border-b border-purple-800/30 ${
                     activeSection === link.href.replace('#', '') ? 'border-purple-400' : ''
-                  }`}
+                  } ${isKurdish ? 'kurdish use-local-kurdish text-right' : ''}`}
                   onClick={(e) => handleNavClick(e, link.href)}
+                  style={{ unicodeBidi: 'plaintext' }}
                 >
                   {link.label}
                 </a>
               ))}
               <div className="flex flex-col gap-4 mt-4">
                 <Link href="/home" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-indigo-800/50 text-white hover:bg-indigo-700">
-                    <HomeIcon className="h-4 w-4 mr-2" />
-                    {t("dashboard")}
+                  <Button className={`w-full bg-indigo-800/50 text-white hover:bg-indigo-700 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`} style={{ unicodeBidi: 'plaintext' }}>
+                    <HomeIcon className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t("dashboard")}</span>
                   </Button>
                 </Link>
                 <Link href="/auth/signin" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-purple-500 text-purple-300">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {t("signIn")}
+                  <Button variant="outline" className={`w-full border-purple-500 text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`} style={{ unicodeBidi: 'plaintext' }}>
+                    <LogIn className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t("signIn")}</span>
                   </Button>
                 </Link>
                 <div className="flex justify-center mt-2">

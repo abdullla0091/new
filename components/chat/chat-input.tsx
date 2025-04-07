@@ -55,13 +55,41 @@ export default function ChatInput({
       setMessage('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
+        // Keep focus on input after sending
+        textareaRef.current.focus();
       }
       // Clear reply state
       if (onCancelReply && replyTo) {
         onCancelReply();
       }
+      
+      // Scroll to bottom after sending message
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 100);
     }
   };
+
+  // Handle mobile keyboard appearance
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Small delay to ensure the UI is updated
+      setTimeout(() => {
+        if (textareaRef.current) {
+          // Scroll the textarea into view when keyboard appears
+          textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('resize', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('resize', handleVisibilityChange);
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -88,7 +116,8 @@ export default function ChatInput({
     <form 
       onSubmit={handleSubmit}
       className={cn(
-        "relative flex flex-col items-end gap-2 p-2 sm:p-3 bg-indigo-950/90 border-t border-purple-500/20 shadow-[0_-4px_20px_rgba(0,0,0,0.25)]",
+        "relative flex flex-col items-end gap-2 bg-indigo-950/90 border-t border-purple-500/20 shadow-[0_-4px_20px_rgba(0,0,0,0.25)]",
+        "pb-safe pt-2 px-2 sm:p-3",
         className
       )}
     >
@@ -135,16 +164,17 @@ export default function ChatInput({
           rows={1}
           dir={currentDirection}
           className={cn(
-            "min-h-[44px] w-full resize-none bg-indigo-900/70 border-indigo-500/50",
+            "min-h-[42px] max-h-[120px] w-full resize-none bg-indigo-900/70 border-indigo-500/50",
             "focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-2xl",
-            "pr-[88px] sm:pr-24 py-3 px-4 text-base placeholder:text-gray-400 text-white",
+            "pr-[80px] sm:pr-24 py-2 px-3 text-base placeholder:text-gray-400 text-white",
+            "focus:outline-none focus:shadow-none",
             isKurdish && "kurdish"
           )}
           style={{
             textAlign: currentDirection === 'rtl' ? 'right' : 'left'
           }}
         />
-        <div className={`absolute ${isKurdish ? 'left-2' : 'right-2'} bottom-1 flex items-center gap-1`}>
+        <div className={`absolute ${isKurdish ? 'left-1.5' : 'right-1.5'} bottom-1 flex items-center gap-1`}>
           <Button
             type="button"
             size="icon"

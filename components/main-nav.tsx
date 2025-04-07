@@ -22,6 +22,7 @@ export function MainNav({ className, chats = [] }: MainNavProps) {
   const isChatPage = pathname.startsWith("/chat")
   const isExplore = pathname === "/"
   const isSettings = pathname === "/settings"
+  const isAbout = pathname === "/about"
   
   return (
     <nav className={cn("flex items-center justify-between", className)}>
@@ -55,6 +56,14 @@ export function MainNav({ className, chats = [] }: MainNavProps) {
             asChild
           >
             <Link href="/settings">Settings</Link>
+          </Button>
+          <Button 
+            variant={isAbout ? "default" : "ghost"} 
+            size="sm"
+            className="font-normal"
+            asChild
+          >
+            <Link href="/about">About</Link>
           </Button>
         </div>
       </div>

@@ -7,6 +7,7 @@ export const translations = {
     features: "Features",
     howItWorks: "How it Works",
     signIn: "Sign In",
+    about: "About",
     
     // TabBar
     home: "Home",
@@ -14,6 +15,25 @@ export const translations = {
     create: "Create",
     favorites: "Favorites",
     profile: "Profile",
+    
+    // Profile Page
+    accountDetails: "Account Details",
+    notifications: "Notifications",
+    settings: "Settings",
+    appearance: "Appearance",
+    logOut: "Log Out",
+    premium: "Standard Account",
+    profileUpdated: "Profile Updated",
+    profilePictureUpdated: "Your profile picture has been updated.",
+    profilePictureRemoved: "Your profile picture has been removed.",
+    uploadFailed: "Upload Failed",
+    failedToUpload: "Failed to upload profile picture.",
+    loggedOut: "Logged Out",
+    youHaveBeenLoggedOut: "You have been logged out.",
+    navigation: "Navigation",
+    navigatingTo: "Navigating to",
+    placeholder: "placeholder",
+    recentActivity: "Recent Activity",
     
     // Dashboard related
     dashboard: "Dashboard",
@@ -53,6 +73,14 @@ export const translations = {
     safeInteractions: "Safe Interactions",
     safeDesc: "All characters are designed to provide helpful, appropriate responses in any context.",
     
+    // Stats section
+    growingCommunity: "GROWING COMMUNITY",
+    ourImpact: "Our Global Impact",
+    communityDescription: "Join the thousands of users already embracing our conversational AI experience.",
+    activeUsers: "Active Users",
+    conversations: "Conversations",
+    languages: "Languages",
+    
     // How it works section
     simpleProcess: "SIMPLE PROCESS",
     howItWorksTitle: "How It Works",
@@ -73,7 +101,17 @@ export const translations = {
     copyright: "© 2023 CharacterChat. All rights reserved.",
     
     // Language toggle
-    switchLanguage: "کوردی"
+    switchLanguage: "کوردی",
+    
+    // Theme Toggle
+    lightModeActivated: "Light mode activated",
+    darkModeActivated: "Dark mode activated",
+    switchedToLight: "Switched to light theme",
+    switchedToDark: "Switched to dark theme",
+    
+    // Image Uploader
+    uploading: "Uploading...",
+    clickOrDrop: "Click or drop image"
   },
   ku: {
     // Navigation
@@ -81,6 +119,7 @@ export const translations = {
     features: "تایبەتمەندییەکان",
     howItWorks: "چۆن کار دەکات",
     signIn: "چوونەژوورەوە",
+    about: "دەربارە",
     
     // TabBar
     home: "سەرەکی",
@@ -88,6 +127,24 @@ export const translations = {
     create: "دروستکردن",
     favorites: "دڵخوازەکان",
     profile: "پرۆفایل",
+    
+    // Profile Page
+    accountDetails: "جۆری حساب",
+    notifications: "نووسینەکان",
+    settings: "ڕەندینی",
+    appearance: "ڕەندینی",
+    logOut: "لێکدان",
+    premium: "حسابی ستاندارد",
+    profileUpdated: "پرۆفایلی هەڵگرت",
+    profilePictureUpdated: "ڕەندینی پرۆفایلی خۆت هەڵگرت.",
+    profilePictureRemoved: "ڕەندینی پرۆفایلی خۆت سەردانە.",
+    uploadFailed: "سەردانی بەکاربهێنە",
+    failedToUpload: "سەردانی بەکاربهێنەی پرۆفایلی خۆت نەبوو.",
+    loggedOut: "لێکدان",
+    youHaveBeenLoggedOut: "تەواو بوویت لێکدان.",
+    navigation: "نەوت",
+    navigatingTo: "بەروباردان بە",
+    placeholder: "بەروباردان بە",
     
     // Dashboard related
     dashboard: "داشبۆرد",
@@ -127,6 +184,14 @@ export const translations = {
     safeInteractions: "کارلێکی پارێزراو",
     safeDesc: "هەموو کارەکتەرەکان بۆ ئەوە دیزاین کراون کە وەڵامی یارمەتیدەر و گونجاو لە هەر بارودۆخێکدا پێشکەش بکەن.",
     
+    // Stats section
+    growingCommunity: "بەناوبانگی بەرز",
+    ourImpact: "ڕەزایی بەرزی ئەمری",
+    communityDescription: "بەشداری هەزاران بەکارهێنەر بکە کە پێشتر گفتوگۆی بە واتا لەگەڵ کارەکتەرە تایبەتەکانی ئێمە دەکەن.",
+    activeUsers: "بەکارهێنەر بەرز",
+    conversations: "گفتوگۆ",
+    languages: "زمان",
+    
     // How it works section
     simpleProcess: "پرۆسەیەکی سادە",
     howItWorksTitle: "چۆن کار دەکات",
@@ -147,7 +212,17 @@ export const translations = {
     copyright: "© ٢٠٢٣ کارەکتەرچات. هەموو مافەکان پارێزراون.",
     
     // Language toggle
-    switchLanguage: "English"
+    switchLanguage: "English",
+    
+    // Theme Toggle
+    lightModeActivated: "ڕۆشنایی چالاک بوو",
+    darkModeActivated: "شێوازی تاریک چالاک کرا",
+    switchedToLight: "گۆڕدرا بۆ ڕۆشنایی",
+    switchedToDark: "گۆڕدرا بۆ تاریک",
+    
+    // Image Uploader
+    uploading: "بارکردن...",
+    clickOrDrop: "کلیک بکە یان وێنەکە دابنێ"
   }
 };
 

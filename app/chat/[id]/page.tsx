@@ -13,6 +13,7 @@ import { characters } from '@/lib/characters';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageCircle, Info, Heart } from "lucide-react";
+import ChatSidebar from '@/components/chat/chat-sidebar';
 
 // Gemini API key
 const GEMINI_API_KEY = "AIzaSyBnKZr4eMrqd3-cMY3pYwIiqKg8ZCHT9oU";
@@ -50,6 +51,7 @@ export default function ChatPage() {
   const [lastMessageSent, setLastMessageSent] = useState('');
   const [replyTo, setReplyTo] = useState<{id: string; content: string; isUser: boolean} | null>(null);
   const [passcodeEntered, setPasscodeEntered] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Ref for message elements to scroll to when clicked
   const messageRefs = useRef<{[key: string]: HTMLDivElement}>({});
@@ -462,6 +464,47 @@ export default function ChatPage() {
     }
   }, [language, character]);
 
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isProcessing]);
+  
+  // Handle mobile viewport height adjustments for keyboard
+  useEffect(() => {
+    // Function to set viewport height variable
+    const setVH = () => {
+      // Set a custom property for viewport height that will be used instead of 100vh
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    // Set initial viewport height
+    setVH();
+    
+    // Update on resize and orientation change
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+    
+    // Cleanup listeners
+    return () => {
+      window.removeEventListener('resize', setVH);
+      window.removeEventListener('orientationchange', setVH);
+    };
+  }, []);
+
+  // When on mobile, clicking outside the sidebar should close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // If sidebar is open and user clicks outside of it, close it
+      if (isSidebarOpen && (event.target as Element).closest('.chat-sidebar') === null) {
+        setIsSidebarOpen(false);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isSidebarOpen]);
+
   if (!character) {
     return (
       <div className="flex items-center justify-center h-[100dvh] bg-gradient-to-b from-indigo-950 to-purple-950">
@@ -473,7 +516,11 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-gradient-to-b from-indigo-950 to-purple-950">
+    <div 
+      className="flex flex-col bg-gradient-to-b from-indigo-950 to-purple-950" 
+      data-page="chat"
+      style={{ height: 'calc(var(--vh, 1vh) * 100)' }}
+    >
       <ChatHeader
         characterName={character.name}
         characterImage={character.image}
@@ -481,17 +528,24 @@ export default function ChatPage() {
         status={isProcessing ? (language === 'ku' ? 'نووسینەوە...' : 'typing...') : 'online'}
         onInfoClick={() => {}}
         onLanguageToggle={handleLanguageToggle}
+        onMenuClick={() => setIsSidebarOpen(true)}
         currentLanguage={language}
       />
       
+      {/* Mobile sidebar */}
+      <ChatSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
+      
       {/* Character profile navbar - fixed alignment */}
-      <div className="w-full bg-indigo-900/80 backdrop-blur-md border-b border-purple-500/30 pt-16">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="w-full bg-indigo-900/80 backdrop-blur-md border-b border-purple-500/30 pt-20 transition-all duration-200">
+        <div className="max-w-4xl mx-auto px-3 py-3 sm:py-4 flex items-center justify-between">
           {/* Left side - Character info */}
           <div className="flex items-center">
-            <div className="relative mr-3">
+            <div className="relative mr-3 sm:mr-4">
               <div className="p-0.5 bg-gradient-to-br from-purple-500/50 to-indigo-600/50 rounded-full">
-                <Avatar className="h-12 w-12 sm:h-14 sm:w-14 ring-1 ring-purple-500/20">
+                <Avatar className="h-12 w-12 sm:h-16 sm:w-16 ring-1 ring-purple-500/20">
                   {character.image ? (
                     <AvatarImage src={character.image} alt={character.name} className="object-cover" />
                   ) : (
@@ -504,14 +558,14 @@ export default function ChatPage() {
             </div>
             
             <div>
-              <h2 className="font-bold text-lg text-white">{character.name}</h2>
-              <div className="flex items-center text-xs text-purple-200 mt-0.5">
-                <div className="flex items-center mr-3">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
+              <h2 className="font-bold text-lg sm:text-xl text-white">{character.name}</h2>
+              <div className="flex items-center text-xs sm:text-sm text-purple-200 mt-0.5 sm:mt-1">
+                <div className="flex items-center mr-3 sm:mr-4">
+                  <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 mr-1 sm:mr-1.5" />
                   <span>{character.rating}</span>
                 </div>
                 <div className="flex items-center">
-                  <MessageCircle className="h-3 w-3 text-purple-300 mr-1" />
+                  <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-300 mr-1 sm:mr-1.5" />
                   <span>{(character.totalChats || 0).toLocaleString()} {language === 'ku' ? 'گفتوگۆ' : 'chats'}</span>
                 </div>
               </div>
@@ -519,20 +573,20 @@ export default function ChatPage() {
           </div>
           
           {/* Right side - Action buttons */}
-          <div className="flex items-center gap-2">
-            <button onClick={toggleFavorite} className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
-              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-400 text-red-400' : 'text-purple-300'}`} />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button onClick={toggleFavorite} className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
+              <Heart className={`h-4.5 w-4.5 sm:h-5 sm:w-5 ${isFavorite ? 'fill-red-400 text-red-400' : 'text-purple-300'}`} />
             </button>
-            <button className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
-              <Info className="h-4 w-4 text-purple-300" />
+            <button className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
+              <Info className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-purple-300" />
             </button>
           </div>
         </div>
       </div>
       
       {/* Chat container */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-600/20 hover:scrollbar-thumb-indigo-600/30">
-        <div className="flex flex-col gap-4 py-4 px-2 sm:px-4 max-w-4xl mx-auto">
+      <div className="flex-1 overflow-y-auto overscroll-contain pb-safe">
+        <div className="flex flex-col gap-3 py-3 sm:py-4 px-2 sm:px-4 max-w-4xl mx-auto">
           {messages.length > 0 ? (
             messages.map((message) => {
               // Find content of the replied message if this message is a reply
@@ -550,7 +604,7 @@ export default function ChatPage() {
                   ref={el => {
                     if (el) messageRefs.current[message.id] = el;
                   }}
-                  className="transition-colors duration-500 rounded-xl"
+                  className="transition-colors duration-300 rounded-xl"
                 >
                   <ChatMessage
                     id={message.id}
@@ -570,12 +624,12 @@ export default function ChatPage() {
               );
             })
           ) : (
-            <div className="text-center py-10 text-indigo-300 opacity-70">
+            <div className="text-center py-8 text-indigo-300 opacity-70">
               <p>{language === 'ku' ? `نامەیەک بنێرە بۆ دەستپێکردنی گفتوگۆ لەگەڵ ${character.name}` : `Send a message to start chatting with ${character.name}`}</p>
             </div>
           )}
           {isProcessing && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1 px-1">
               <div className="flex-shrink-0">
                 <div className="p-0.5 rounded-full bg-gradient-to-br from-purple-500/50 to-indigo-600/50">
                   <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
@@ -583,7 +637,7 @@ export default function ChatPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-indigo-900/40 backdrop-blur-md text-gray-100 px-4 py-2 rounded-2xl text-sm sm:text-base">
+              <div className="bg-indigo-900/40 backdrop-blur-md text-gray-100 px-3 py-1.5 rounded-2xl text-sm">
                 <div className="flex space-x-1">
                   <span className="animate-bounce">•</span>
                   <span className="animate-bounce delay-100">•</span>
@@ -592,7 +646,7 @@ export default function ChatPage() {
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} className="h-4" />
         </div>
       </div>
 
@@ -600,7 +654,7 @@ export default function ChatPage() {
         onSendMessage={handleSendMessage}
         isProcessing={isProcessing}
         placeholder={language === 'ku' ? `نامە بۆ ${character.name}...` : `Message ${character.name}...`}
-        className="sticky bottom-0 max-w-4xl mx-auto w-full z-10"
+        className="sticky bottom-0 max-w-4xl mx-auto w-full z-10 pb-safe"
         replyTo={replyTo}
         onCancelReply={handleCancelReply}
       />

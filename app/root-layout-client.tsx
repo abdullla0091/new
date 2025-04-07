@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
-
+import { useLanguage } from "@/app/i18n/LanguageContext"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { Chat } from "@/types"
@@ -15,6 +15,8 @@ export default function RootLayoutClient({
   const pathname = usePathname()
   const [windowWidth, setWindowWidth] = useState(0)
   const [chats, setChats] = useState<Chat[]>([])
+  const { language } = useLanguage()
+  const isKurdish = language === "ku"
   
   // Get chats from server for the MainNav component
   useEffect(() => {
@@ -37,13 +39,21 @@ export default function RootLayoutClient({
     if (typeof window !== 'undefined') {
       const handleResize = () => {
         setWindowWidth(window.innerWidth)
+        
+        // Set a custom property for viewport height that will be used instead of 100vh
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
       }
       
       // Set initial value
       handleResize()
       
       window.addEventListener('resize', handleResize)
-      return () => window.removeEventListener('resize', handleResize)
+      window.addEventListener('orientationchange', handleResize)
+      return () => {
+        window.removeEventListener('resize', handleResize)
+        window.removeEventListener('orientationchange', handleResize)
+      }
     }
   }, [])
   

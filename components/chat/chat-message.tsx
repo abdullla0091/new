@@ -80,16 +80,16 @@ export default function ChatMessage({
         {/* Reply Preview (if this message is a reply) */}
         {replyTo && replyContent && (
           <div 
-            className={`flex items-center gap-1 cursor-pointer text-xs px-2 py-1 rounded-lg
+            className={`flex ${isKurdish ? 'flex-row-reverse' : ''} items-center gap-1 cursor-pointer text-xs px-2 py-1 rounded-lg
               ${isUser 
                 ? 'bg-indigo-800/40 text-indigo-200 ml-12' 
                 : 'bg-indigo-800/40 text-indigo-200 mr-12'
               }`}
             onClick={() => scrollToMessage && scrollToMessage(replyTo)}
           >
-            <ArrowDown className="h-3 w-3 rotate-45" />
+            <ArrowDown className={`h-3 w-3 rotate-45 ${isKurdish ? 'ml-1' : 'mr-1'}`} />
             <span className="truncate max-w-[150px] sm:max-w-[250px]" 
-                  dir={getTextDirection(replyContent)}>
+                  dir={isKurdish ? 'rtl' : getTextDirection(replyContent)}>
               {replyContent.length > 50 ? replyContent.substring(0, 50) + '...' : replyContent}
             </span>
           </div>
@@ -97,7 +97,8 @@ export default function ChatMessage({
         
         {/* Message Content */}
         {content.map((text, index) => {
-          const textDirection = getTextDirection(text);
+          // For Kurdish language, always use RTL direction
+          const textDirection = isKurdish ? 'rtl' : getTextDirection(text);
           
           return (
             <div
@@ -109,7 +110,7 @@ export default function ChatMessage({
                 } ${isKurdish ? 'kurdish' : ''}`}
               dir={textDirection}
               style={{
-                textAlign: textDirection === 'rtl' ? 'right' : 'left',
+                textAlign: isKurdish ? 'right' : (textDirection === 'rtl' ? 'right' : 'left'),
                 unicodeBidi: 'embed'
               }}
             >
@@ -119,7 +120,7 @@ export default function ChatMessage({
         })}
         
         {/* Timestamp and Actions */}
-        <div className={`flex items-center gap-1 text-xs text-gray-400 px-1 ${isUser ? 'flex-row-reverse' : ''}`}>
+        <div className={`flex items-center gap-1 text-xs text-gray-400 px-1 ${isUser || isKurdish ? 'flex-row-reverse' : ''}`}>
           <span className="opacity-60">{formattedTime}</span>
           
           {/* Reply button */}

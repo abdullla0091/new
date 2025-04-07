@@ -6,6 +6,7 @@ import { Globe } from "lucide-react";
 
 export default function LanguageToggle() {
   const { language, setLanguage, t } = useLanguage();
+  const isKurdish = language === "ku";
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ku" : "en");
@@ -16,7 +17,8 @@ export default function LanguageToggle() {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      className="flex items-center gap-1 text-white hover:bg-indigo-800/30 rounded-md transition-all duration-200"
+      className={`flex items-center gap-1 text-white hover:bg-indigo-800/30 rounded-md transition-all duration-200 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
+      style={{ unicodeBidi: 'plaintext' }}
     >
       <Globe className="h-4 w-4 text-purple-300" />
       <span className="text-gray-200">{t("switchLanguage")}</span>

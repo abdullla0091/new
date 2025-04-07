@@ -4,6 +4,7 @@ import "./globals.css"
 import { Providers } from "./providers"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
+import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,10 +24,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preload" href="/kurdish-font/NizarBukraRegular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="/kurdish-font/kurdish-font.css" />
+      </head>
       <body className={cn("min-h-screen antialiased", inter.className)}>
         <Providers>
           <RootLayoutClient>{children}</RootLayoutClient>
         </Providers>
+        
+        <Script src="/kurdish-font-fix.js" strategy="lazyOnload" />
       </body>
     </html>
   )
