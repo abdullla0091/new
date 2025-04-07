@@ -138,10 +138,22 @@ async function generateWithFallback(
 
 export async function POST(req: NextRequest) {
   try {
-    // Get current user information
-    // Replace the function call with using the isAuthenticated method
-    const isAuthenticated = auth.isAuthenticated();
-    const userName = isAuthenticated ? "User" : "Guest"; // Default username since we don't have real sessions
+    // Get current user information with better error handling
+    let userName = "User";
+    try {
+      // Check if auth is a function or an object based on environment
+      if (typeof auth === 'function') {
+        const session = await auth();
+        userName = session?.user?.name || session?.user?.email?.split('@')[0] || "User";
+      } else if (auth && typeof auth.isAuthenticated === 'function') {
+        // If auth is an object with isAuthenticated method
+        const isAuthenticated = auth.isAuthenticated();
+        userName = isAuthenticated ? "User" : "Guest";
+      }
+    } catch (authError) {
+      console.error("Auth error:", authError);
+      // Continue with default username if auth fails
+    }
     
     const body: ChatRequestBody = await req.json();
     const { 
