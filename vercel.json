@@ -4,8 +4,6 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "regions": ["cdg1"],
   "env": {
     "NODE_ENV": "production",
     "NEXT_PUBLIC_APP_URL": "https://my-next-app.vercel.app"
@@ -16,15 +14,14 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/chat/(.*)",
-      "dest": "/chat/[id]?id=$1",
-      "continue": true
+      "source": "/chat/:id*",
+      "destination": "/chat/[id]"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
   "headers": [
