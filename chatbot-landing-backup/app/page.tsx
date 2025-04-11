@@ -376,8 +376,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-indigo-950 py-12">
+      {/* Footer - properly positioned at the bottom */}
+      <footer className="bg-indigo-950 py-12 mt-auto relative">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-6 md:mb-0">

@@ -105,7 +105,7 @@ export default function ModernNavbar() {
   return (
     <header 
       className={`modern-navbar w-full py-4 px-6 md:px-8 fixed top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'scrolled' : 'bg-transparent'
+        scrolled ? 'bg-indigo-950/90 backdrop-blur-md shadow-[0_4px_30px_rgba(139,92,246,0.2)]' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
