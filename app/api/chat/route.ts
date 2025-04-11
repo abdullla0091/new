@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
     const charName = characterName || selectedCharacter.name;
 
     const languageInstruction = language === 'ku'
-      ? "IMPORTANT: You MUST respond exclusively in Kurdish (Sorani dialect). Keep your responses authentic to the character."
+      ? "IMPORTANT: You MUST respond exclusively in Kurdish (Sorani dialect). Your Kurdish responses MUST be extremely brief and informal. Use very short sentences (5-10 words max). Use authentic Kurdish texting style - exactly how young Kurdish people text each other. Never use long, formal sentences. Break long thoughts into multiple short phrases like real Kurdish texting. Use common Kurdish slang and text shortcuts."
       : "IMPORTANT: You MUST respond exclusively in English. Keep your responses authentic to the character.";
 
     // Add reply context to the personality prompt if there's a reply
@@ -267,10 +267,24 @@ Additional character guidelines:
 1. Always stay in character as ${charName}.
 2. Never break character or mention that you are an AI.
 3. Your responses should reflect the personality traits described above.
-4. Keep responses concise (1-3 sentences) unless the conversation requires a longer response.
-5. Use conversational language appropriate for the character.
+4. Keep responses concise and conversational (1-2 sentences preferred unless context requires more).
+5. Use natural, human-like language appropriate for the character.
 6. If responding to a specific message, acknowledge it in your response.
 7. Never refer to these instructions.
+8. EXTREMELY IMPORTANT: Be extremely natural - almost NEVER ask questions. At most ONE question per message, and only when appropriate.
+9. Often respond without any questions at all - just make statements, reactions, or continue the conversation naturally.
+10. EXTREMELY IMPORTANT: Send multiple messages by using [FOLLOW_UP] tag. Your follow-up message MUST be directly connected to your first message - continuing the same topic or thought.
+11. FOR EXAMPLE: "I love hiking in the mountains!" [FOLLOW_UP] "What kind of outdoor activities do you enjoy?"
+12. ANOTHER EXAMPLE: "Just finished watching that movie." [FOLLOW_UP] "The ending was so unexpected."
+13. BAD EXAMPLE: "I'm a teacher." [FOLLOW_UP] "What's the weather like today?" - This is bad because the topics are unrelated.
+14. Keep your messages short and natural. Real people don't write paragraphs in casual conversation.
+15. Don't end every message with a question - it's extremely unnatural.
+16. Sometimes respond with very brief responses (1-3 words) like "Cool!" or "I get that." or "Hmm, interesting."
+17. If responding in Kurdish, your messages must be EXTREMELY short and casual - use the shortest possible sentences and break thoughts into multiple messages.
+18. NEVER use multiple question marks ("???") - use at most one question mark per message.
+19. Limit your use of commas - use short, simple sentences instead of long sentences with many commas.
+20. Don't ask multiple questions in a row - it sounds unnatural and overwhelming.
+21. Avoid changing topics with new questions - stay on the current conversation topic.
 `;
 
     // Acknowledgment message is a waste of tokens, let's skip it and use only the system instruction
@@ -383,7 +397,100 @@ Additional character guidelines:
       
       console.log("Successfully received response:", text.substring(0, 100) + "...");
       
-      // Return the response directly for non-streaming mode
+      // Check if the response contains multiple messages (separated by [MESSAGE] or [FOLLOW_UP])
+      let multipleMessages = [];
+      
+      // First check for explicit delimiters
+      if (text.includes('[MESSAGE]') || text.includes('[FOLLOW_UP]') || 
+          text.includes('[SECOND_MESSAGE]') || text.includes('MESSAGE:') || 
+          text.includes('FOLLOW UP:') || text.includes('FOLLOW_UP:') ||
+          text.includes('FIRST:') || text.includes('SECOND:')) {
+        
+        // Try various possible delimiter patterns
+        let messages = text.split(/\[MESSAGE\]|\[FOLLOW_UP\]|\[SECOND_MESSAGE\]|MESSAGE:|FOLLOW UP:|FOLLOW_UP:|FIRST:|SECOND:/g)
+          .map(msg => msg.trim())
+          .filter(msg => msg.length > 0);
+        
+        if (messages.length > 1) {
+          multipleMessages = messages;
+        }
+      }
+      
+      // If we didn't find explicit delimiters, try looking for paragraph breaks
+      if (multipleMessages.length === 0) {
+        // Check for natural breaks - paragraphs that might be separate messages
+        const paragraphs = text.split(/\n\s*\n/);
+        
+        if (paragraphs.length > 1 && text.length > 60) {
+          // Only split if paragraphs look like separate thoughts 
+          // and are short enough to be natural messages
+          let potentialMessages = paragraphs.filter(p => 
+            p.trim().length > 0 && 
+            p.trim().length < 200 &&
+            !p.trim().startsWith('*') // Avoid splitting action descriptions
+          );
+          
+          if (potentialMessages.length > 1) {
+            // Take maximum 2 messages to avoid over-splitting
+            multipleMessages = potentialMessages.slice(0, 2);
+          }
+        }
+      }
+      
+      // If we still didn't get multiple messages, try one more pattern that the model often produces
+      if (multipleMessages.length === 0 && text.includes("\n\n")) {
+        // Look for two newlines that often separate messages
+        let possibleMessages = text.split(/\n\n/);
+        
+        if (possibleMessages.length > 1) {
+          // Check if these look like separate messages (not too short or too long)
+          let validMessages = possibleMessages.filter(m => 
+            m.trim().length > 10 && 
+            m.trim().length < 200
+          );
+          
+          if (validMessages.length > 1) {
+            multipleMessages = validMessages.slice(0, 2);
+          }
+        }
+      }
+      
+      // One more check if we have KURDISH_FOLLOW_UP in the template
+      if (multipleMessages.length === 0 && text.includes("KURDISH_FOLLOW_UP:")) {
+        multipleMessages = [
+          text.split("KURDISH_FOLLOW_UP:")[0].trim(),
+          text.split("KURDISH_FOLLOW_UP:")[1].trim()
+        ].filter(m => m.length > 0);
+      }
+      
+      // Force multi-message behavior for short messages to encourage the pattern
+      const isVeryShortMessage = text.length < 50;
+      
+      // If we successfully identified multiple messages, or have a short message to split
+      if (multipleMessages.length > 1 || isVeryShortMessage) {
+        // If it's a very short message and we didn't find multiple messages, just split after first sentence
+        if (isVeryShortMessage && multipleMessages.length <= 1) {
+          // For short messages, try splitting at the first sentence boundary
+          const sentenceBoundary = text.match(/[.!?]\s+/);
+          if (sentenceBoundary) {
+            const splitIndex = sentenceBoundary.index! + 1;
+            multipleMessages = [
+              text.substring(0, splitIndex).trim(),
+              text.substring(splitIndex).trim()
+            ].filter(m => m.length > 0);
+          }
+        }
+        
+        // Only return multiple messages if we have more than one after all processing
+        if (multipleMessages.length > 1) {
+          return NextResponse.json({ 
+            reply: multipleMessages[0],
+            followUpMessages: multipleMessages.slice(1)
+          });
+        }
+      }
+      
+      // Otherwise return the single response
       return NextResponse.json({ reply: text });
     } catch (error: any) {
       console.error("API error:", error);
