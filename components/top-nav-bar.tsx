@@ -54,8 +54,8 @@ export default function TopNavBar() {
           <Link href="/" className="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
             <div className="relative h-14 w-14">
               <Image 
-                src="/images/logoo.png" 
-                alt="Nestro Chat Logo"
+                src="/images/logo.png" 
+                alt="ChatKurd Logo"
                 fill
                 className="object-contain"
               />

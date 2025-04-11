@@ -118,11 +118,11 @@ export default function ModernNavbar() {
         >
           <div className="relative h-14 w-14">
             <Image 
-              src="/images/logoo.png" 
-              alt="Nestro Chat Logo"
-              width={56}
-              height={56}
-              className="object-contain"
+              src="/images/logo.png" 
+              alt="ChatKurd Logo"
+              width={28}
+              height={28}
+              className="mr-2"
             />
           </div>
           <span className={`font-display font-bold text-xl tracking-tighter ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>Nestro Chat</span>

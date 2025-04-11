@@ -46,7 +46,7 @@ export default function Home() {
         <div className="flex items-center gap-3">
           <div className="relative h-12 w-12">
             <Image 
-              src="/images/logoo.png" 
+              src="/images/logo.png" 
               alt="Nestro Chat Logo"
               fill
               className="object-contain"
@@ -383,7 +383,7 @@ export default function Home() {
             <div className="flex items-center gap-2 mb-6 md:mb-0">
               <div className="relative h-12 w-12">
                 <Image 
-                  src="/images/logoo.png" 
+                  src="/images/logo.png" 
                   alt="Nestro Chat Logo"
                   fill
                   className="object-contain"

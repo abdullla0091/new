@@ -16,8 +16,8 @@ export default function Footer() {
           <div className="flex items-center gap-2 mb-6 md:mb-0">
             <div className="relative h-10 w-10">
               <Image 
-                src="/images/logoo.png" 
-                alt="Nestro Chat Logo"
+                src="/images/logo.png" 
+                alt="ChatKurd Logo"
                 fill
                 className="object-contain"
               />
