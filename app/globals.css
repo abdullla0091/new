@@ -5,6 +5,7 @@
 /* Import professional fonts for English content */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Import theme styles */
 
 @tailwind base;
 @tailwind components;
@@ -26,35 +27,61 @@
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
+    /* Purple theme colors */
+    --primary: 271 80% 55%;
     --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    
+    --background: 271 91% 10%;
+    --foreground: 224 71% 95%;
+    
+    --card: 271 91% 12%;
+    --card-foreground: 224 71% 95%;
+    
+    --popover: 271 91% 12%;
+    --popover-foreground: 224 71% 95%;
+    
+    --secondary: 271 100% 20%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 223 47% 11%;
+    --muted-foreground: 224 71% 80%;
+    
+    --accent: 271 100% 20%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 271 47% 21%;
+    --input: 271 47% 21%;
+    --ring: 271 80% 55%;
+    
     --radius: 0.5rem;
+
+    /* Chat specific colors - dark purple theme */
+    --chat-bg-gradient-from: 271 87% 15%;
+    --chat-bg-gradient-to: 271 91% 17%;
+    --message-bg-user: linear-gradient(to bottom right, hsl(271, 100%, 55%), hsl(245, 83%, 53%));
+    --message-bg-bot: hsla(271, 87%, 20%, 0.4);
+    --input-bg: hsla(271, 91%, 17%, 0.9);
+    --input-border: hsla(271, 100%, 80%, 0.2);
+    --header-bg: hsla(271, 91%, 17%, 0.9);
+
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 34, 10, 50;
+    --background-end-rgb: 20, 5, 30;
+    --border-color: #4b216b;
+    --card-bg: #30124a;
+    --primary-color: #a855f7;
+    --primary-hover: #9333ea;
+    
+    /* Chat theme variables */
+    --chat-bg: #30124a;
+    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
+    --message-bot-bg: #3c1a5b;
+    --chat-input-bg: #3c1a5b;
+    --chat-text-light: #f8fafc;
+    --chat-text-dark: #f8fafc;
 
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 248, 249, 250;
@@ -74,43 +101,124 @@
     --safe-area-right: env(safe-area-inset-right, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --safe-area-left: env(safe-area-inset-left, 0px);
+
+    /* Chat theme variables */
+    --chat-bg: #f8fafc;
+    --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
+    --message-bot-bg: #e2e8f0;
+    --chat-input-bg: #ffffff;
+    --chat-text-light: #f8fafc;
+    --chat-text-dark: #0f172a;
+  }
+
+  .light {
+    --background: 224 71% 98%;
+    --foreground: 224 71% 4%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    
+    --primary: 271 80% 55%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 227 73% 94%;
+    --secondary-foreground: 271 80% 55%;
+    
+    --muted: 223 47% 11%;
+    --muted-foreground: 224 71% 45%;
+    
+    --accent: 224 71% 90%;
+    --accent-foreground: 271 80% 55%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 271 80% 55%;
+
+    /* Chat specific colors - light theme */
+    --chat-bg-gradient-from: 224 71% 98%;
+    --chat-bg-gradient-to: 227 73% 94%;
+    --message-bg-user: linear-gradient(to bottom right, hsl(271, 80%, 65%), hsl(221, 83%, 65%));
+    --message-bg-bot: hsla(227, 73%, 85%, 0.6);
+    --input-bg: hsla(0, 0%, 100%, 0.9);
+    --input-border: hsla(271, 100%, 60%, 0.2);
+    --header-bg: hsla(0, 0%, 100%, 0.9);
+
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 248, 249, 250;
+    --background-end-rgb: 255, 255, 255;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --primary-color: #a855f7;
+    --primary-hover: #9333ea;
+
+    /* Chat theme variables for light mode */
+    --chat-bg: #f8fafc;
+    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
+    --message-bot-bg: #e2e8f0;
+    --chat-input-bg: #ffffff;
+    --chat-text-light: #f8fafc;
+    --chat-text-dark: #0f172a;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 271 91% 10%;
+    --foreground: 224 71% 95%;
+    
+    --card: 271 91% 12%;
+    --card-foreground: 224 71% 95%;
+    
+    --popover: 271 91% 12%;
+    --popover-foreground: 224 71% 95%;
+    
+    --primary: 271 80% 55%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 271 100% 20%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 223 47% 11%;
+    --muted-foreground: 224 71% 80%;
+    
+    --accent: 271 100% 20%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 271 47% 21%;
+    --input: 271 47% 21%;
+    --ring: 271 80% 55%;
+    
+    /* Chat specific colors - dark theme */
+    --chat-bg-gradient-from: 271 87% 15%;
+    --chat-bg-gradient-to: 271 91% 17%;
+    --message-bg-user: linear-gradient(to bottom right, hsl(271, 100%, 55%), hsl(245, 83%, 53%));
+    --message-bg-bot: hsla(271, 87%, 20%, 0.4);
+    --input-bg: hsla(271, 91%, 17%, 0.9);
+    --input-border: hsla(271, 100%, 80%, 0.2);
+    --header-bg: hsla(271, 91%, 17%, 0.9);
 
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 10, 15, 25;
-    --background-end-rgb: 0, 0, 0;
-    --border-color: #1e293b;
-    --card-bg: #0f172a;
-    --muted-foreground-rgb: 148, 163, 184;
+    --background-start-rgb: 34, 10, 50;
+    --background-end-rgb: 20, 5, 30;
+    --border-color: #4b216b;
+    --card-bg: #30124a;
+    --primary-color: #a855f7;
+    --primary-hover: #9333ea;
+
+    /* Chat theme variables for dark mode */
+    --chat-bg: #30124a;
+    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
+    --message-bot-bg: #3c1a5b;
+    --chat-input-bg: #3c1a5b;
+    --chat-text-light: #f8fafc;
+    --chat-text-dark: #f8fafc;
   }
 
   * {
@@ -617,4 +725,82 @@ html[lang="ku"] .relative > [data-radix-popper-content-wrapper] {
 [dir="rtl"] .arrow-right,
 [dir="rtl"] .arrow-left {
   transform: scaleX(-1);
+}
+
+/* Chat theme styles */
+[data-chat-theme="light"] {
+  --chat-bg: #f8fafc;
+  --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
+  --message-bot-bg: #e2e8f0;
+  --chat-input-bg: #ffffff;
+  --chat-text-light: #f8fafc;
+  --chat-text-dark: #0f172a;
+}
+
+[data-chat-theme="dark"] {
+  --chat-bg: #0f172a;
+  --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
+  --message-bot-bg: #1e293b;
+  --chat-input-bg: #1e293b;
+  --chat-text-light: #f8fafc;
+  --chat-text-dark: #0f172a;
+}
+
+[data-chat-theme="sunset"] {
+  --chat-bg: #FFECD6;
+  --message-user-bg: linear-gradient(to bottom right, #f97316, #ef4444);
+  --message-bot-bg: #FFF5E9;
+  --chat-input-bg: #ffffff;
+  --chat-text-light: #ffffff;
+  --chat-text-dark: #7c2d12;
+}
+
+[data-chat-theme="forest"] {
+  --chat-bg: #ecfdf5;
+  --message-user-bg: linear-gradient(to bottom right, #10b981, #059669);
+  --message-bot-bg: #f1f5f9;
+  --chat-input-bg: #ffffff;
+  --chat-text-light: #ffffff;
+  --chat-text-dark: #064e3b;
+}
+
+[data-chat-theme="kurdish"] {
+  --chat-bg: #fcfbf4;
+  --message-user-bg: linear-gradient(to bottom right, #ca8a04, #facc15);
+  --message-bot-bg: #f8fafc;
+  --chat-input-bg: #ffffff;
+  --chat-text-light: #ffffff;
+  --chat-text-dark: #0f172a;
+}
+
+/* Apply chat themes to chat components */
+.chat-container {
+  background-color: var(--chat-bg);
+}
+
+.user-message {
+  background: var(--message-user-bg);
+  color: var(--chat-text-light);
+}
+
+.bot-message {
+  background: var(--message-bot-bg);
+  color: var(--chat-text-dark);
+}
+
+.chat-input {
+  background: var(--chat-input-bg);
+}
+
+/* Add landing page specific styles */
+.landing-page-main {
+  background: linear-gradient(to bottom, #361371, #541a9c, #361371);
+}
+
+.main-bg {
+  background-color: hsl(var(--background));
+}
+
+.gradient-bg {
+  background: linear-gradient(to bottom, hsl(271, 91%, 10%), hsl(271, 91%, 7%));
 }

@@ -34,12 +34,17 @@ export default function SimplifiedBackground() {
         this.x = Math.random() * canvas.width
         this.y = Math.random() * canvas.height
         this.size = Math.random() * 5 + 2
-        this.speedX = (Math.random() - 0.5) * 0.5 // Slower speed
-        this.speedY = (Math.random() - 0.5) * 0.5 // Slower speed
+        this.speedX = (Math.random() - 0.5) * 0.8 // Slightly faster
+        this.speedY = (Math.random() - 0.5) * 0.8 // Slightly faster
 
-        // Create a gradient of purples and blues
-        const hue = Math.random() * 60 + 240 // 240-300 is blue to purple
-        this.color = `hsla(${hue}, 80%, 70%, ${Math.random() * 0.2 + 0.1})`
+        // More vibrant color palette with higher saturation and brightness
+        const colorOptions = [
+          `hsla(${Math.random() * 60 + 240}, 90%, 75%, ${Math.random() * 0.3 + 0.2})`, // Blues and purples
+          `hsla(${Math.random() * 40 + 280}, 90%, 75%, ${Math.random() * 0.3 + 0.2})`, // Purples and pinks
+          `hsla(360, 90%, 75%, ${Math.random() * 0.3 + 0.2})`, // Reds
+          `hsla(320, 90%, 75%, ${Math.random() * 0.3 + 0.2})`, // Magentas
+        ];
+        this.color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
       }
 
       draw() {
@@ -67,7 +72,7 @@ export default function SimplifiedBackground() {
 
     // Create a limited number of particles
     const particlesArray: Particle[] = []
-    const numberOfParticles = 100 // Significantly reduced from 800
+    const numberOfParticles = 150 // Increased from 100 for more vibrance
 
     for (let i = 0; i < numberOfParticles; i++) {
       particlesArray.push(new Particle())
@@ -78,7 +83,7 @@ export default function SimplifiedBackground() {
       if (!ctx) return
 
       // Clear canvas with a slight trail effect
-      ctx.fillStyle = "rgba(30, 27, 75, 0.1)" // Indigo-950 with low opacity
+      ctx.fillStyle = "rgba(30, 27, 75, 0.05)" // Reduced opacity for longer trails
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       // Update and draw particles

@@ -5,6 +5,7 @@ import { Providers } from "./providers"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
 import Script from "next/script"
+import { LanguageProvider } from "./i18n/LanguageContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -13,7 +14,7 @@ const RootLayoutClient = dynamic(() => import("./root-layout-client"), {
 })
 
 export const metadata: Metadata = {
-  title: "CharacterChat - AI Characters with Personality",
+  title: "Nestro Chat - AI Characters with Personality",
   description: "Experience conversations with unique AI characters that have distinct personalities and expertise.",
 }
 
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="preload" href="/kurdish-font/NizarBukraRegular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="stylesheet" href="/kurdish-font/kurdish-font.css" />
@@ -33,10 +34,12 @@ export default function RootLayout({
           as="script"
         />
       </head>
-      <body className={cn("min-h-screen antialiased", inter.className)}>
-        <Providers>
-          <RootLayoutClient>{children}</RootLayoutClient>
-        </Providers>
+      <body className={cn("min-h-screen antialiased bg-background", inter.className)}>
+        <LanguageProvider>
+          <Providers>
+            <RootLayoutClient>{children}</RootLayoutClient>
+          </Providers>
+        </LanguageProvider>
         
         <Script src="/kurdish-font-fix.js" strategy="lazyOnload" />
         <Script src="/navigation-fix.js" strategy="beforeInteractive" />

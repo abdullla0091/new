@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCharacterImage, getDummyCharacterImage } from "@/lib/image-storage";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/app/i18n/LanguageContext";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +52,7 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<'all' | 'default' | 'custom'>('all');
   const [loading, setLoading] = useState(true);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const { language, t, isKurdish } = useLanguage();
 
   // Initialize from URL parameters if present
   useEffect(() => {
@@ -190,16 +192,16 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10">
+    <div className={`container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10 ${isKurdish ? 'kurdish' : ''}`}>
       <div className="text-center mb-4">
         <span className="inline-block px-4 py-1 bg-purple-900/50 rounded-full text-purple-300 text-sm font-medium mb-4">
-          DISCOVER
+          {t("explore").toUpperCase()}
         </span>
         <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-          Explore Characters
+          {t("exploreCharacters")}
         </h1>
         <p className="text-gray-200 max-w-2xl mx-auto">
-          Find the perfect AI companion to chat with from our collection of unique personalities.
+          {t("discoverCharacters")}
         </p>
       </div>
       
@@ -210,10 +212,10 @@ export default function ExplorePage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-300" />
             <Input
               type="text"
-              placeholder="Search by name or description..."
+              placeholder={isKurdish ? "گەڕان بە ناو یان وەسف..." : "Search by name or description..."}
               value={searchTerm}
               onChange={handleSearchChange}
-              className="pl-10 bg-indigo-800/40 border-purple-500/20 placeholder:text-purple-300/70 text-white"
+              className={`pl-10 bg-indigo-800/40 border-purple-500/20 placeholder:text-purple-300/70 text-white ${isKurdish ? 'text-right' : ''}`}
             />
           </div>
           
@@ -222,28 +224,28 @@ export default function ExplorePage() {
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-1 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white">
                   <Filter className="h-4 w-4 mr-1" />
-                  Filters
+                  {isKurdish ? "فلتەر" : "Filters"}
                   {selectedTag && <Badge variant="secondary" className="ml-1 bg-indigo-700/70">1</Badge>}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-indigo-900/95 backdrop-blur-xl border border-purple-500/30 text-white max-w-lg">
+              <DialogContent className={`bg-indigo-900/95 backdrop-blur-xl border border-purple-500/30 text-white max-w-lg ${isKurdish ? 'kurdish' : ''}`}>
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-display">Filter Characters</DialogTitle>
+                  <DialogTitle className="text-2xl font-display">{isKurdish ? "فلتەری کەسایەتییەکان" : "Filter Characters"}</DialogTitle>
                   <DialogDescription className="text-purple-200">
-                    Customize your character search with these filters.
+                    {isKurdish ? "گەڕانی کەسایەتی خۆت بە ئارەزوومەند بکە بەم فلتەرانە." : "Customize your character search with these filters."}
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-6 py-4">
                   {/* Character Type Tabs */}
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Character Type</h3>
+                    <h3 className="text-sm font-medium text-purple-200">{isKurdish ? "جۆری کەسایەتی" : "Character Type"}</h3>
                     <Tabs defaultValue={activeTab} className="w-full" onValueChange={(value) => setActiveTab(value as any)}>
                       <TabsList className="bg-indigo-800/40 border border-purple-500/20 grid grid-cols-3">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">All</TabsTrigger>
-                        <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">Built-in</TabsTrigger>
+                        <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">{isKurdish ? "هەموو" : "All"}</TabsTrigger>
+                        <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">{isKurdish ? "بنەڕەتی" : "Built-in"}</TabsTrigger>
                         <TabsTrigger value="custom" className="flex items-center gap-1 data-[state=active]:bg-purple-600">
-                          Custom
+                          {isKurdish ? "تایبەت" : "Custom"}
                           {customCharCount > 0 && (
                             <Badge variant="secondary" className="ml-1 bg-indigo-700/70">{customCharCount}</Badge>
                           )}

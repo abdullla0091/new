@@ -1,13 +1,14 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Search, Star, User, Sparkles, MessageSquare, Bell, Globe } from "lucide-react"
+import { Home, Search, Star, User, Sparkles, Bell, Globe, Settings } from "lucide-react"
 import { useLanguage } from "@/app/i18n/LanguageContext"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import LanguageToggle from "./language-toggle"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export default function TopNavBar() {
   const pathname = usePathname()
@@ -51,11 +52,16 @@ export default function TopNavBar() {
         <div className="flex justify-between items-center h-full">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
-            <div className="bg-gradient-to-tr from-purple-500 to-indigo-600 p-1.5 rounded-lg shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-              <MessageSquare className="h-5 w-5 text-white" />
+            <div className="relative h-14 w-14">
+              <Image 
+                src="/images/logoo.png" 
+                alt="Nestro Chat Logo"
+                fill
+                className="object-contain"
+              />
             </div>
             <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-              CharacterChat
+              Nestro Chat
             </span>
           </Link>
           
@@ -96,6 +102,11 @@ export default function TopNavBar() {
               <Bell className="h-5 w-5 text-gray-200" />
               <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full"></span>
             </button>
+            
+            {/* Settings */}
+            <Link href="/settings" className="p-1.5 rounded-full hover:bg-indigo-800/30 transition-colors">
+              <Settings className="h-5 w-5 text-gray-200" />
+            </Link>
             
             {/* Language toggle */}
             <Button

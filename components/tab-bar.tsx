@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Search, PlusCircle, Heart, User, Info } from "lucide-react"
+import { Home, Search, PlusCircle, Heart, User, Info, Settings } from "lucide-react"
 import { useLanguage } from "@/app/i18n/LanguageContext"
 
 export default function TabBar() {
@@ -22,7 +22,7 @@ export default function TabBar() {
     create: { en: 'Create', ku: 'دروستکردن' },
     favorites: { en: 'Favorites', ku: 'دڵخوازەکان' },
     profile: { en: 'Profile', ku: 'پرۆفایل' },
-    about: { en: 'About', ku: 'دەربارە' },
+    settings: { en: 'Settings', ku: 'ڕێکخستنەکان' },
   }
 
   const tabs = [
@@ -31,7 +31,7 @@ export default function TabBar() {
     { id: 'create', path: '/create', icon: PlusCircle },
     { id: 'favorites', path: '/favorites', icon: Heart },
     { id: 'profile', path: '/profile', icon: User },
-    { id: 'about', path: '/about', icon: Info },
+    { id: 'settings', path: '/settings', icon: Settings },
   ]
 
   return (

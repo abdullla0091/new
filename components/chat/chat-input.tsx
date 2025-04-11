@@ -6,9 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mic, Send, StopCircle, X } from "lucide-react";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { cn } from "@/lib/utils";
+import VoiceRecorder from "./voice-recorder";
 
 interface ChatInputProps {
   onSendMessage: (message: string, replyToId?: string) => void;
+  onSendVoiceMessage?: (blob: Blob, replyToId?: string) => void;
   isProcessing?: boolean;
   placeholder?: string;
   className?: string;
@@ -22,6 +24,7 @@ interface ChatInputProps {
 
 export default function ChatInput({
   onSendMessage,
+  onSendVoiceMessage,
   isProcessing = false,
   placeholder = "Type a message...",
   className,
@@ -65,7 +68,11 @@ export default function ChatInput({
       
       // Scroll to bottom after sending message
       setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        window.scrollTo(0, document.body.scrollHeight);
+        const messagesContainer = document.querySelector('.overflow-y-auto');
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
       }, 100);
     }
   };
@@ -112,12 +119,26 @@ export default function ChatInput({
   // Set initial text direction based on language
   const currentDirection = getTextDirection(message);
 
+  const handleVoiceRecorded = (blob: Blob) => {
+    if (onSendVoiceMessage) {
+      onSendVoiceMessage(blob, replyTo?.id);
+      // Clear reply state
+      if (onCancelReply && replyTo) {
+        onCancelReply();
+      }
+    }
+  };
+
+  const handleCancelVoiceRecording = () => {
+    setIsRecording(false);
+  };
+
   return (
     <form 
       onSubmit={handleSubmit}
       className={cn(
         "relative flex flex-col items-end gap-2 bg-indigo-950/90 border-t border-purple-500/20 shadow-[0_-4px_20px_rgba(0,0,0,0.25)]",
-        "pb-safe pt-2 px-2 sm:p-3",
+        "pt-2 px-2 sm:p-3 w-full",
         className
       )}
     >
@@ -164,7 +185,7 @@ export default function ChatInput({
           rows={1}
           dir={currentDirection}
           className={cn(
-            "min-h-[42px] max-h-[120px] w-full resize-none bg-indigo-900/70 border-indigo-500/50",
+            "min-h-[42px] max-h-[120px] w-full resize-none chat-input border-indigo-500/50",
             "focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-2xl",
             "pr-[80px] sm:pr-24 py-2 px-3 text-base placeholder:text-gray-400 text-white",
             "focus:outline-none focus:shadow-none",
@@ -175,23 +196,14 @@ export default function ChatInput({
           }}
         />
         <div className={`absolute ${isKurdish ? 'left-1.5' : 'right-1.5'} bottom-1 flex items-center gap-1`}>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            disabled={isProcessing}
-            onClick={() => setIsRecording(!isRecording)}
-            className={cn(
-              "h-8 w-8 hover:bg-indigo-600/20 text-white",
-              isRecording && "text-red-500 animate-pulse"
-            )}
-          >
-            {isRecording ? (
-              <StopCircle className="h-5 w-5" />
-            ) : (
-              <Mic className="h-5 w-5" />
-            )}
-          </Button>
+          {onSendVoiceMessage && (
+            <VoiceRecorder 
+              onVoiceRecorded={handleVoiceRecorded}
+              onCancel={handleCancelVoiceRecording}
+              isRecording={isRecording}
+              setIsRecording={setIsRecording}
+            />
+          )}
           <Button
             type="submit"
             size="icon"

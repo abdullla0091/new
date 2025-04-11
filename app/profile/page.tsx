@@ -3,20 +3,54 @@
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import ThemeToggle from "@/components/theme-toggle";
-import { User, Settings, LogOut, Star, Bell, Sun, MessageSquare, Clock, Activity } from "lucide-react";
+import { User, Settings, LogOut, Star, Bell, Sun, MessageSquare, Clock, Activity, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import ProfileItem from "@/components/profile-item";
 import ImageUpload from "@/components/image-upload";
 import { getUserImage, saveUserImage, removeUserImage, fileToBase64 } from "@/lib/image-storage";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { getTranslation } from "@/app/i18n/translations";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+
+// Component for profile menu item
+const ProfileItem = ({ 
+  icon: Icon, 
+  title, 
+  description, 
+  onClick, 
+  isRtl
+}: { 
+  icon: any; 
+  title: string; 
+  description: string; 
+  onClick: () => void;
+  isRtl?: boolean;
+}) => (
+  <div 
+    className={cn(
+      "flex items-center p-4 hover:bg-indigo-800/30 rounded-lg cursor-pointer transition-colors", 
+      isRtl ? "flex-row-reverse text-right" : ""
+    )}
+    onClick={onClick}
+  >
+    <div className={cn("bg-indigo-800/60 p-3 rounded-full", isRtl ? "ml-0" : "")}>
+      <Icon className="h-5 w-5 text-indigo-200" />
+    </div>
+    <div className={cn("ml-4", isRtl ? "mr-4 ml-0" : "")}>
+      <h3 className="font-medium text-white">{title}</h3>
+      <p className="text-sm text-indigo-200">{description}</p>
+    </div>
+  </div>
+);
 
 export default function ProfilePage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const { language, isKurdish } = useLanguage();
   const t = (key: any) => getTranslation(language, key);
+  const [mounted, setMounted] = useState(false);
 
   // Placeholder user data
   const user = {
@@ -37,209 +71,225 @@ export default function ProfilePage() {
     if (savedImage) {
       setProfileImage(savedImage);
     }
+    setMounted(true);
   }, []);
 
+  // Image upload handler
   const handleImageChange = async (file: File | null) => {
     if (file) {
       try {
-        const base64Image = await fileToBase64(file);
-        setProfileImage(base64Image);
-        saveUserImage(base64Image);
+        const base64 = await fileToBase64(file);
+        setProfileImage(base64);
+        saveUserImage(base64);
+        
         toast({
-          title: t("profileUpdated") || "Profile Updated", 
-          description: t("profilePictureUpdated") || "Your profile picture has been updated.",
+          title: isKurdish ? t("profilePictureUpdated") : "Profile Picture Updated",
+          description: isKurdish ? t("profilePictureUpdated") : "Your profile picture has been updated.",
           duration: 2000,
         });
       } catch (error) {
-        console.error("Error processing image:", error);
         toast({
-          title: t("uploadFailed") || "Upload Failed",
-          description: t("failedToUpload") || "Failed to upload profile picture.",
           variant: "destructive",
+          title: isKurdish ? t("uploadFailed") : "Upload Failed",
+          description: isKurdish ? t("failedToUpload") : "Failed to upload your profile picture.",
           duration: 2000,
         });
       }
-    } else {
-      setProfileImage(null);
-      removeUserImage();
-      toast({
-        title: t("profileUpdated") || "Profile Updated",
-        description: t("profilePictureRemoved") || "Your profile picture has been removed.",
-        duration: 2000,
-      });
     }
   };
 
-  const handleLogout = () => {
+  // Image remove handler
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    removeUserImage();
+    
     toast({
-      title: t("loggedOut") || "Logged Out",
-      description: t("youHaveBeenLoggedOut") || "You have been logged out (placeholder).",
+      title: isKurdish ? t("profilePictureRemoved") : "Profile Picture Removed",
+      description: isKurdish ? t("profilePictureRemoved") : "Your profile picture has been removed.",
       duration: 2000,
     });
-    // Placeholder logout logic - in a real app, redirect or clear auth state
   };
 
-  const handleNavigate = (path: string) => {
-    // In a real app, use next/navigation useRouter
-    toast({ 
-      title: t("navigation") || "Navigation", 
-      description: `${t("navigatingTo") || "Navigating to"} ${path} (${t("placeholder") || "placeholder"})`, 
-      duration: 1500 
+  // Logout handler
+  const handleLogout = () => {
+    // Clear any user data
+    localStorage.removeItem('userToken');
+    
+    toast({
+      title: isKurdish ? t("loggedOut") : "Logged Out",
+      description: isKurdish ? t("youHaveBeenLoggedOut") : "You have been logged out.",
+      duration: 2000,
     });
+    
+    // Redirect to home page
+    setTimeout(() => {
+      router.push('/');
+    }, 1000);
   };
+
+  // Navigation handler
+  const handleNavigate = (path: string) => {
+    router.push(path);
+  };
+
+  // Handle chat navigation
+  const handleChatNavigation = (character: string) => {
+    router.push(`/chat/${character.toLowerCase()}`);
+  };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
-    <div className={`flex flex-col min-h-screen bg-gradient-to-b from-purple-950 to-indigo-950 text-white ${isKurdish ? 'kurdish' : ''}`}>
-      {/* Profile Header */}
-      <div className="relative h-60 bg-gradient-to-r from-purple-800 to-indigo-700 overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-10 left-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+    <div 
+      dir={isKurdish ? "rtl" : "ltr"}
+      className="flex flex-col min-h-screen bg-gradient-to-b from-purple-950 to-indigo-950 text-white"
+    >
+      {/* Header */}
+      <div className={cn("p-4 flex items-center", isKurdish && "justify-start flex-row-reverse")}>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => router.back()}
+          className="rounded-full text-white hover:bg-white/10 mx-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl font-semibold">
+          {isKurdish ? "پڕۆفایل" : "Profile"}
+        </h1>
+      </div>
+      
+      {/* Content */}
+      <div className="px-4 py-6 flex-1">
+        <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 mb-6">
+          {/* Profile Header */}
+          <div className="p-6 flex flex-col items-center">
+            <div className="relative">
+              <Avatar className="h-24 w-24 mb-2 ring-2 ring-purple-500/30">
+                {profileImage ? (
+                  <AvatarImage src={profileImage} alt={user.username} />
+                ) : (
+                  <AvatarFallback className="bg-indigo-700">
+                    {user.username.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              
+              <div className="mt-2 flex justify-center space-x-2 rtl:space-x-reverse">
+                <Button
+                  variant="outline" 
+                  size="sm"
+                  className="bg-transparent border-purple-500/30 hover:bg-purple-500/20 text-purple-200"
+                  onClick={() => document.getElementById('profile-image-upload')?.click()}
+                >
+                  {isKurdish ? "گۆڕین" : "Change"}
+                </Button>
+                
+                {profileImage && (
+                  <Button
+                    variant="outline" 
+                    size="sm"
+                    className="bg-transparent border-red-500/30 hover:bg-red-500/20 text-red-200"
+                    onClick={handleRemoveImage}
+                  >
+                    {isKurdish ? "سڕینەوە" : "Remove"}
+                  </Button>
+                )}
+                
+                <input 
+                  id="profile-image-upload"
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden"
+                  onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                />
+              </div>
+            </div>
+            
+            <h2 className="text-xl font-bold mt-4">{user.username}</h2>
+            <p className="text-indigo-300">{user.email}</p>
+          </div>
+        </div>
         
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="mb-4">
-            <ImageUpload
-              value={profileImage || ''}
-              onChange={handleImageChange}
-              className="h-24 w-24 mx-auto"
-              size="lg"
+        {/* Menu Items */}
+        <div className={cn("space-y-4", isKurdish && "text-right")}>
+          <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 overflow-hidden">
+            <ProfileItem 
+              icon={Settings} 
+              title={isKurdish ? "ڕێکخستنەکان" : "Settings"}
+              description={isKurdish ? "ڕێکخستنەکانی هەژمار و پەیوەندیکردن" : "Account & app preferences"} 
+              onClick={() => handleNavigate('/settings')}
+              isRtl={isKurdish}
+            />
+            <Separator className="bg-indigo-800/50" />
+            <ProfileItem 
+              icon={Star} 
+              title={isKurdish ? "دڵخوازەکان" : "Favorites"}
+              description={isKurdish ? "کەسایەتییە دڵخوازەکانت" : "Your favorite characters"} 
+              onClick={() => handleNavigate('/favorites')}
+              isRtl={isKurdish}
+            />
+            <Separator className="bg-indigo-800/50" />
+            <ProfileItem 
+              icon={Bell} 
+              title={isKurdish ? "ئاگادارکردنەوەکان" : "Notifications"}
+              description={isKurdish ? "بەڕێوەبردنی ئاگادارکردنەوەکان" : "Manage notification settings"} 
+              onClick={() => handleNavigate('/notifications')}
+              isRtl={isKurdish}
             />
           </div>
           
-          {/* Single username element with proper spacing */}
-          <h2 className={`text-xl font-semibold mb-3 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-            {isKurdish ? 'ناوی بەکارهێنەر' : 'User123'}
-          </h2>
-          
-          {/* Account badge with proper spacing */}
-          <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md">
-            <span className={`text-xs text-purple-300 block ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-              {t("premium") || "Standard Account"}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Profile Stats */}
-      <div className="px-4 -mt-6 mb-4 relative z-10">
-        <div className="bg-indigo-900/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          <div className="grid grid-cols-3 divide-x divide-purple-500/20">
-            <div className="p-4 text-center">
-              <div className="text-2xl font-semibold text-white">12</div>
-              <div className={`text-xs text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-                {t("conversations") || "Conversations"}
-              </div>
-            </div>
-            <div className="p-4 text-center">
-              <div className="text-2xl font-semibold text-white">5</div>
-              <div className={`text-xs text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-                {t("favorites") || "Favorites"}
-              </div>
-            </div>
-            <div className="p-4 text-center">
-              <div className="text-2xl font-semibold text-white">2</div>
-              <div className={`text-xs text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-                {t("languages") || "Languages"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="px-4 mb-4">
-        <div className="bg-indigo-900/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          <div className="p-4 border-b border-purple-500/20">
-            <div className="flex items-center">
-              <Activity className="h-5 w-5 text-purple-300 mr-2" />
-              <h3 className={`text-sm font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-                {t("recentActivity") || "Recent Activity"}
-              </h3>
-            </div>
-          </div>
-          <div className="divide-y divide-purple-500/10">
-            {recentActivity.map(activity => (
-              <div key={activity.id} className="flex items-center p-3 hover:bg-indigo-800/30">
-                <div className="h-10 w-10 rounded-full bg-indigo-700/50 flex items-center justify-center mr-3">
-                  <MessageSquare className="h-5 w-5 text-purple-300" />
-                </div>
-                <div className="flex-1">
-                  <div className={`text-sm font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-                    {isKurdish ? `گفتوگۆ لەگەڵ ${activity.title}` : `Chat with ${activity.title}`}
-                  </div>
-                  <div className="flex items-center text-xs text-purple-300">
-                    <Clock className="h-3 w-3 mr-1" />
-                    <span className={isKurdish ? 'kurdish use-local-kurdish' : ''}>
-                      {activity.time}
-                    </span>
+          <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 overflow-hidden">
+            <h3 className={cn("px-4 pt-4 text-lg font-medium", isKurdish && "text-right")}>
+              {isKurdish ? "چالاکی دوایی" : "Recent Activity"}
+            </h3>
+            
+            <div className="p-2">
+              {recentActivity.map((activity) => (
+                <div 
+                  key={activity.id}
+                  className={cn(
+                    "flex items-center p-2 hover:bg-indigo-800/30 rounded-lg cursor-pointer transition-colors", 
+                    isKurdish ? "flex-row-reverse text-right" : ""
+                  )}
+                  onClick={() => activity.type === 'conversation' && handleChatNavigation(activity.title)}
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-purple-700">{activity.title[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className={cn("ml-3", isKurdish ? "mr-3 ml-0" : "")}>
+                    <p className="font-medium">
+                      {isKurdish ? `چات لەگەڵ ${activity.title}` : `Chat with ${activity.title}`}
+                    </p>
+                    <p className="text-sm text-indigo-300">{activity.time}</p>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <div className="flex-1 px-4 pb-20">
-        <div className="bg-indigo-900/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          <ProfileItem
-            icon={<User className="h-5 w-5 text-purple-300" />}
-            label={t("accountDetails") || "Account Details"}
-            onClick={() => handleNavigate('/account')}
-            textColor="text-white"
-          />
           
-          <Separator className="bg-purple-500/10" />
-          
-          <ProfileItem
-            icon={<Star className="h-5 w-5 text-purple-300" />}
-            label={t("favorites") || "Favorites"}
-            onClick={() => handleNavigate('/favorites')}
-            textColor="text-white"
-          />
-          
-          <Separator className="bg-purple-500/10" />
-          
-          <ProfileItem
-            icon={<Bell className="h-5 w-5 text-purple-300" />}
-            label={t("notifications") || "Notifications"}
-            onClick={() => handleNavigate('/notifications')}
-            textColor="text-white"
-          />
-          
-          <Separator className="bg-purple-500/10" />
-          
-          <ProfileItem
-            icon={<Settings className="h-5 w-5 text-purple-300" />}
-            label={t("settings") || "Settings"}
-            onClick={() => handleNavigate('/settings')}
-            textColor="text-white"
-          />
-        </div>
-        
-        {/* Appearance Section */}
-        <div className="mt-4 bg-indigo-900/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          <ProfileItem
-            icon={<Sun className="h-5 w-5 text-purple-300" />}
-            label={t("appearance") || "Appearance"}
-            textColor="text-white"
-          >
-            <ThemeToggle variant="switch" />
-          </ProfileItem>
-        </div>
-        
-        {/* Logout Button */}
-        <div className="mt-4 bg-indigo-900/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 overflow-hidden">
-          <ProfileItem
-            icon={<LogOut className="h-5 w-5 text-red-400" />}
-            label={t("logOut") || "Log Out"}
-            textColor="text-red-400"
+          {/* Logout */}
+          <div 
+            className={cn(
+              "flex items-center p-4 bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 hover:bg-indigo-800/30 cursor-pointer transition-colors", 
+              isKurdish ? "flex-row-reverse text-right" : ""
+            )}
             onClick={handleLogout}
           >
-            {/* Remove default chevron for logout */}
-            <span></span>
-          </ProfileItem>
+            <div className="bg-red-500/20 p-3 rounded-full">
+              <LogOut className="h-5 w-5 text-red-300" />
+            </div>
+            <div className={cn("ml-4", isKurdish ? "mr-4 ml-0" : "")}>
+              <h3 className="font-medium text-red-200">
+                {isKurdish ? "چوونەدەرەوە" : "Log Out"}
+              </h3>
+              <p className="text-sm text-red-300/70">
+                {isKurdish ? "چوونەدەرەوە لە هەژمارەکەت" : "Sign out of your account"}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

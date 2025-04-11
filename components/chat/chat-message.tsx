@@ -12,6 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AudioMessage from "./audio-message";
+import MessageReaction from "./message-reaction";
 
 interface ChatMessageProps {
   id: string;
@@ -26,6 +28,11 @@ interface ChatMessageProps {
   replyTo?: string;
   replyContent?: string;
   scrollToMessage?: (id: string) => void;
+  audioUrl?: string;
+  type?: 'text' | 'audio';
+  reactions?: Record<string, string[]>;
+  onAddReaction?: (messageId: string, reaction: string) => void;
+  onRemoveReaction?: (messageId: string, reaction: string) => void;
 }
 
 export default function ChatMessage({
@@ -40,7 +47,12 @@ export default function ChatMessage({
   onReply,
   replyTo,
   replyContent,
-  scrollToMessage
+  scrollToMessage,
+  audioUrl,
+  type,
+  reactions,
+  onAddReaction,
+  onRemoveReaction
 }: ChatMessageProps) {
   const { language } = useLanguage();
   const isUser = role === 'user';
@@ -96,32 +108,52 @@ export default function ChatMessage({
         )}
         
         {/* Message Content */}
-        {content.map((text, index) => {
-          // For Kurdish language, always use RTL direction
-          const textDirection = isKurdish ? 'rtl' : getTextDirection(text);
-          
-          return (
-            <div
-              key={index}
-              className={`relative group px-3 py-2 rounded-2xl text-sm sm:text-base break-words
-                ${isUser 
-                  ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white ml-12' 
-                  : 'bg-indigo-900/40 backdrop-blur-md text-gray-100 mr-12'
-                } ${isKurdish ? 'kurdish' : ''}`}
-              dir={textDirection}
-              style={{
-                textAlign: isKurdish ? 'right' : (textDirection === 'rtl' ? 'right' : 'left'),
-                unicodeBidi: 'embed'
-              }}
-            >
-              {text}
-            </div>
-          );
-        })}
+        {type === 'audio' && audioUrl ? (
+          <AudioMessage 
+            src={audioUrl} 
+            className={`${isUser 
+              ? 'bg-gradient-to-br from-purple-600/80 to-indigo-600/80' 
+              : 'bg-indigo-900/60'} ml-12 mr-12`}
+          />
+        ) : (
+          content.map((text, index) => {
+            // For Kurdish language, always use RTL direction
+            const textDirection = isKurdish ? 'rtl' : getTextDirection(text);
+            
+            return (
+              <div
+                key={index}
+                className={`relative group px-3 py-2 rounded-2xl text-sm sm:text-base break-words
+                  ${isUser 
+                    ? 'user-message' 
+                    : 'bot-message'
+                  } ${isKurdish ? 'kurdish' : ''}`}
+                dir={textDirection}
+                style={{
+                  textAlign: isKurdish ? 'right' : (textDirection === 'rtl' ? 'right' : 'left'),
+                  unicodeBidi: 'embed'
+                }}
+              >
+                {text}
+              </div>
+            );
+          })
+        )}
         
         {/* Timestamp and Actions */}
         <div className={`flex items-center gap-1 text-xs text-gray-400 px-1 ${isUser || isKurdish ? 'flex-row-reverse' : ''}`}>
           <span className="opacity-60">{formattedTime}</span>
+          
+          {/* Reactions */}
+          {onAddReaction && onRemoveReaction && (
+            <MessageReaction
+              messageId={id}
+              reactions={reactions}
+              onAddReaction={onAddReaction}
+              onRemoveReaction={onRemoveReaction}
+              currentUser="user" // Placeholder - you would normally pass the current user's ID
+            />
+          )}
           
           {/* Reply button */}
           {onReply && (

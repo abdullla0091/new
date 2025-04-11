@@ -2,7 +2,7 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ThemeProviderProps } from "next-themes"
 import { useEffect, useState } from "react"
-import { getCurrentTheme, getThemeById, THEME_STORAGE_KEY } from "@/lib/themes"
+import { getCurrentChatTheme, applyChatTheme } from "@/lib/chat-themes"
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false)
@@ -10,63 +10,32 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   useEffect(() => {
     setMounted(true)
 
-    // Apply theme colors as CSS variables on mount
-    applyThemeColors()
+    // Apply chat theme on mount
+    const currentChatTheme = getCurrentChatTheme();
+    applyChatTheme(currentChatTheme);
 
-    // Listen for theme changes
-    window.addEventListener('theme-changed', applyThemeColors)
+    // Apply the purple color scheme by default
+    document.documentElement.classList.add('dark');
+
+    // Listen for chat theme changes
+    window.addEventListener('chat-theme-changed', handleChatThemeChange);
     
     return () => {
-      window.removeEventListener('theme-changed', applyThemeColors)
+      window.removeEventListener('chat-theme-changed', handleChatThemeChange);
     }
   }, [])
 
-  // Function to apply theme colors to root element
-  const applyThemeColors = () => {
-    try {
-      if (typeof window === 'undefined') return
-
-      const themeId = getCurrentTheme()
-      
-      // Skip applying theme colors if using system theme
-      if (themeId === 'system') return
-      
-      const themeOption = getThemeById(themeId)
-      if (!themeOption) return
-      
-      // Apply colors to :root and html element
-      const root = document.documentElement
-      
-      // Apply main colors
-      root.style.setProperty('--background', themeOption.colors.background)
-      root.style.setProperty('--foreground', themeOption.colors.foreground)
-      
-      // Card and borders
-      root.style.setProperty('--card', themeOption.colors.card)
-      root.style.setProperty('--card-foreground', themeOption.colors.foreground)
-      root.style.setProperty('--border', themeOption.colors.border)
-      
-      // Primary color
-      root.style.setProperty('--primary', themeOption.colors.primary)
-      root.style.setProperty('--primary-foreground', themeOption.colors.primaryForeground)
-      
-      // Optional colors if defined
-      if (themeOption.colors.accent) {
-        root.style.setProperty('--accent', themeOption.colors.accent)
-      }
-      if (themeOption.colors.muted) {
-        root.style.setProperty('--muted', themeOption.colors.muted)
-      }
-    } catch (error) {
-      console.error('Error applying theme colors:', error)
-    }
+  // Handle chat theme changes
+  const handleChatThemeChange = () => {
+    const currentChatTheme = getCurrentChatTheme();
+    applyChatTheme(currentChatTheme);
   }
 
   return (
     <NextThemesProvider 
       attribute="class" 
-      defaultTheme="system" 
-      enableSystem 
+      defaultTheme="dark" 
+      enableSystem={false}
       disableTransitionOnChange
       {...props}
     >

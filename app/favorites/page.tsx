@@ -9,9 +9,11 @@ import CharacterCard from "@/components/character-card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getCharacterImage, getDummyCharacterImage } from "@/lib/image-storage"
-import { Heart, HeartOff, ArrowLeftCircle, Star } from "lucide-react"
+import { Heart, HeartOff, ArrowLeftCircle, Star, ArrowLeft } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/app/i18n/LanguageContext"
+import { cn } from "@/lib/utils"
 
 // Generate a background color based on the character name
 function getAvatarGradient(name: string): string {
@@ -35,6 +37,8 @@ export default function FavoritesPage() {
   const router = useRouter()
   const [favoriteCharacters, setFavoriteCharacters] = useState<Character[]>([])
   const [loading, setLoading] = useState(true)
+  const { language, t, isKurdish } = useLanguage()
+  const [mounted, setMounted] = useState(false)
 
   // Load favorite characters
   useEffect(() => {
@@ -73,86 +77,145 @@ export default function FavoritesPage() {
     // Add event listener for favorites changes
     window.addEventListener('favorites-changed', loadFavorites);
     
+    setMounted(true)
+    
     return () => {
       window.removeEventListener('favorites-changed', loadFavorites);
     };
   }, []);
 
+  // Handle chat with character
+  const handleChatWithCharacter = (characterId: string | number) => {
+    router.push(`/chat/${characterId}`);
+  };
+
+  // Handle view profile
+  const handleViewProfile = (characterId: string | number) => {
+    router.push(`/profile/${characterId}`);
+  };
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div className="container mx-auto py-6 px-4 space-y-6 z-10">
-      <div className="text-center mb-8">
-        <span className="inline-block px-4 py-1 bg-purple-900/50 rounded-full text-purple-300 text-sm font-medium mb-4">
-          FAVORITES
-        </span>
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-          Your Favorite Characters
-        </h1>
-        <p className="text-gray-200 max-w-2xl mx-auto">
-          Access all your favorite AI characters in one place.
-        </p>
-      </div>
-
-      <div className="mb-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-purple-950 to-indigo-950 text-white">
+      {/* Header */}
+      <div className="p-4 flex items-center">
         <Button 
-          variant="outline" 
-          className="flex items-center gap-2 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30"
-          onClick={() => router.push('/explore')}
+          variant="ghost" 
+          size="icon" 
+          onClick={() => router.back()}
+          className={cn("rounded-full text-white hover:bg-white/10", isKurdish ? "ml-2" : "mr-2")}
         >
-          <ArrowLeftCircle className="h-4 w-4" />
-          Back to Explore
+          <ArrowLeft className="h-5 w-5" />
         </Button>
+        <h1 className="text-xl font-semibold">
+          {isKurdish ? "دڵخوازەکان" : "Favorites"}
+        </h1>
       </div>
-
-      <div className="bg-indigo-900/20 backdrop-blur-md p-6 rounded-2xl border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+      
+      {/* Content */}
+      <div className="px-4 py-6 flex-1">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
-                <div className="flex flex-col items-center">
-                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-3 w-16 mb-2" />
-                  <Skeleton className="h-3 w-full mb-1" />
-                  <Skeleton className="h-3 w-5/6" />
+          // Loading skeletons
+          <div className="space-y-4">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-4">
+                <div className="flex items-center">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="ml-4 space-y-2">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        ) : favoriteCharacters.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {favoriteCharacters.map(char => (
-              <div 
-                key={char.id} 
-                className="cursor-pointer transform hover:scale-[1.02] transition-transform"
-              >
-                <CharacterCard character={char} />
-                
-                {/* Custom character badge */}
-                {(char as any).isCustom && (
-                  <div className="mt-1 flex justify-center">
-                    <Badge variant="outline" className="flex items-center gap-1 text-xs bg-indigo-800/40 border-purple-500/20 text-purple-300">
-                      <Star className="h-3 w-3" />
-                      Custom
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 border border-purple-500/20 rounded-xl bg-indigo-900/30 backdrop-blur-md">
-            <HeartOff className="h-12 w-12 mx-auto mb-4 text-purple-400 opacity-50" />
-            <h3 className="text-xl font-semibold mb-2 text-purple-200">No Favorites Yet</h3>
-            <p className="text-gray-300 max-w-md mx-auto mb-6">
-              You haven't added any characters to your favorites yet. Browse characters and click the star icon to add them to your favorites.
+        ) : favoriteCharacters.length === 0 ? (
+          // No favorites message
+          <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-8 text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-indigo-800/50 flex items-center justify-center mb-4">
+              <Heart className="h-8 w-8 text-red-400" />
+            </div>
+            <p className={cn("text-lg text-purple-300", isKurdish && "text-right")}>
+              {isKurdish 
+                ? "هیچ کەسایەتییەکت نەکردووە بە دڵخواز"
+                : "You haven't added any characters to your favorites yet."}
             </p>
             <Button 
               onClick={() => router.push('/explore')}
-              className="bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)] mx-auto flex items-center gap-2"
+              className="mt-6 bg-purple-600 hover:bg-purple-700"
             >
-              <Heart className="h-4 w-4" />
-              Find Characters to Favorite
+              {isKurdish ? "گەڕان بۆ کەسایەتی" : "Explore Characters"}
             </Button>
+          </div>
+        ) : (
+          // Favorite characters list
+          <div className="space-y-4">
+            {favoriteCharacters.map((character) => {
+              const characterId = character.id.toString();
+              const profileImage = character.avatar || getDummyCharacterImage(characterId);
+              
+              return (
+                <div 
+                  key={characterId}
+                  className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-4 hover:border-purple-500/40 transition-all"
+                >
+                  <div className="flex items-center">
+                    <Avatar className="h-12 w-12">
+                      {profileImage ? (
+                        <AvatarImage src={profileImage} alt={character.name} />
+                      ) : (
+                        <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(character.name)}`}>
+                          {character.name.charAt(0)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    
+                    <div className="ml-4 flex-1">
+                      <div className="flex items-center">
+                        <h2 className="text-lg font-semibold">{character.name}</h2>
+                        {character.verified && (
+                          <Badge variant="outline" className="ml-2 bg-purple-500/20 text-purple-200 border-purple-400 text-xs">
+                            Verified
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center text-sm text-purple-300">
+                        {character.rating && (
+                          <div className="flex items-center mr-3">
+                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
+                            <span>{character.rating}</span>
+                          </div>
+                        )}
+                        <span>{character.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex mt-4 justify-end space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewProfile(characterId)}
+                      className="bg-transparent border-purple-500/30 hover:bg-purple-500/20 text-purple-200"
+                    >
+                      {isKurdish ? "پڕۆفایل" : "Profile"}
+                    </Button>
+                    
+                    <Button 
+                      size="sm"
+                      onClick={() => handleChatWithCharacter(characterId)}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      {isKurdish ? "چات" : "Chat"}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

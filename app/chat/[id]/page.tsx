@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageCircle, Info, Heart } from "lucide-react";
 import ChatSidebar from '@/components/chat/chat-sidebar';
+import MessageSkeleton from '@/components/chat/message-skeleton';
 
 // Gemini API key
 const GEMINI_API_KEY = "AIzaSyBnKZr4eMrqd3-cMY3pYwIiqKg8ZCHT9oU";
@@ -36,6 +37,9 @@ interface Message {
   content: string[];
   timestamp: number;
   replyTo?: string; // ID of the message being replied to
+  audioUrl?: string; // URL for voice messages
+  type?: 'text' | 'audio'; // Message type
+  reactions?: Record<string, string[]>; // Map of emoji -> array of user IDs
 }
 
 // Add fallback navigation method at the top of the file
@@ -77,7 +81,9 @@ export default function ChatPage() {
   }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    // Also try window scroll as a fallback for mobile
+    window.scrollTo(0, document.body.scrollHeight);
   };
 
   // Function to scroll to a specific message when clicking a reply reference
@@ -359,6 +365,7 @@ export default function ChatPage() {
       const data = await response.json();
       
       if (data.reply) {
+        // Create the main response message
         const aiResponse: Message = {
           id: Date.now().toString(),
           role: 'model',
@@ -367,6 +374,32 @@ export default function ChatPage() {
           replyTo: userMessage.id // AI always replies to the most recent user message
         };
         setMessages(prev => [...prev, aiResponse]);
+        
+        // Handle follow-up messages if they exist
+        if (data.followUpMessages && Array.isArray(data.followUpMessages) && data.followUpMessages.length > 0) {
+          // Wait a brief moment to make it feel natural
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Create a follow-up message for each in the array
+          for (const [index, followUpMsg] of data.followUpMessages.entries()) {
+            if (followUpMsg && followUpMsg.trim()) {
+              // Add small delay between multiple follow-up messages
+              if (index > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+              
+              const followUpResponse: Message = {
+                id: Date.now().toString() + index,
+                role: 'model',
+                content: parseMessage(followUpMsg),
+                timestamp: Date.now(),
+                replyTo: null // Follow-up messages don't reply to anything specific
+              };
+              
+              setMessages(prev => [...prev, followUpResponse]);
+            }
+          }
+        }
       } else {
         throw new Error('Empty response from API');
       }
@@ -385,8 +418,113 @@ export default function ChatPage() {
     }
   };
 
+  // Function to handle sending voice messages
+  const handleSendVoiceMessage = async (blob: Blob, replyToId?: string) => {
+    if (!character) return;
+    
+    // Create a temporary URL for the audio to preview it
+    const audioUrl = URL.createObjectURL(blob);
+    
+    // Create a new audio message
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: [language === 'ku' ? 'پەیامی دەنگی' : 'Voice message'],
+      timestamp: Date.now(),
+      audioUrl,
+      type: 'audio',
+      replyTo: replyToId
+    };
+    
+    // Add message to state
+    setMessages(prev => [...prev, newMessage]);
+    
+    // Set processing state
+    setIsProcessing(true);
+    
+    try {
+      // Generate AI response (this could be modified to handle voice differently)
+      const botResponse = await generateGeminiResponse(
+        language === 'ku' ? 'پەیامێکی دەنگیم ناردووە' : 'I sent you a voice message', 
+        character.name
+      );
+      
+      // Add AI response to messages
+      setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Error generating response:', error);
+      
+      // Fallback to local response if API fails
+      const fallbackResponse = generateLocalFallbackResponse(
+        language === 'ku' ? 'پەیامێکی دەنگیم ناردووە' : 'I sent you a voice message'
+      );
+      
+      setMessages(prev => [...prev, fallbackResponse]);
+    } finally {
+      // Set processing state to false
+      setIsProcessing(false);
+      
+      // Save conversation to local storage
+      saveConversation([...messages, newMessage]);
+    }
+  };
+
   const handleDeleteMessage = (id: string) => {
     setMessages(prev => prev.filter(msg => msg.id !== id));
+  };
+
+  // Handle adding a reaction to a message
+  const handleAddReaction = (messageId: string, reaction: string) => {
+    setMessages(prev => 
+      prev.map(msg => {
+        if (msg.id === messageId) {
+          const currentReactions = msg.reactions || {};
+          const reactingUsers = currentReactions[reaction] || [];
+          
+          if (!reactingUsers.includes('user')) {
+            return {
+              ...msg,
+              reactions: {
+                ...currentReactions,
+                [reaction]: [...reactingUsers, 'user']
+              }
+            };
+          }
+        }
+        return msg;
+      })
+    );
+  };
+  
+  // Handle removing a reaction from a message
+  const handleRemoveReaction = (messageId: string, reaction: string) => {
+    setMessages(prev => 
+      prev.map(msg => {
+        if (msg.id === messageId) {
+          const currentReactions = msg.reactions || {};
+          const reactingUsers = currentReactions[reaction] || [];
+          
+          if (reactingUsers.includes('user')) {
+            const updatedUsers = reactingUsers.filter(userId => userId !== 'user');
+            
+            const updatedReactions = { ...currentReactions };
+            
+            if (updatedUsers.length === 0) {
+              // Remove the reaction completely if no users have it
+              delete updatedReactions[reaction];
+            } else {
+              updatedReactions[reaction] = updatedUsers;
+            }
+            
+            return {
+              ...msg,
+              reactions: updatedReactions
+            };
+          }
+        }
+        return msg;
+      })
+    );
   };
 
   const toggleFavorite = () => {
@@ -504,11 +642,15 @@ export default function ChatPage() {
     // Update on resize and orientation change
     window.addEventListener('resize', setVH);
     window.addEventListener('orientationchange', setVH);
+    window.addEventListener('focusin', setVH);
+    window.addEventListener('focusout', setVH);
     
     // Cleanup listeners
     return () => {
       window.removeEventListener('resize', setVH);
       window.removeEventListener('orientationchange', setVH);
+      window.removeEventListener('focusin', setVH);
+      window.removeEventListener('focusout', setVH);
     };
   }, []);
 
@@ -527,9 +669,11 @@ export default function ChatPage() {
 
   if (!character) {
     return (
-      <div className="flex items-center justify-center h-[100dvh] bg-gradient-to-b from-indigo-950 to-purple-950">
-        <div className="animate-pulse text-indigo-300">
-          {language === 'ku' ? 'دامەزراندنی کارەکتەر...' : 'Loading character...'}
+      <div className="flex flex-col h-[100dvh] bg-gradient-to-b from-indigo-950 to-purple-950">
+        <div className="pt-16 px-3 flex-1">
+          <div className="max-w-4xl mx-auto mt-6">
+            <MessageSkeleton count={3} isIncoming={true} />
+          </div>
         </div>
       </div>
     );
@@ -537,7 +681,7 @@ export default function ChatPage() {
 
   return (
     <div 
-      className="flex flex-col bg-gradient-to-b from-indigo-950 to-purple-950" 
+      className="flex flex-col bg-gradient-to-b from-indigo-950 to-purple-950 min-h-screen" 
       data-page="chat"
       style={{ height: 'calc(var(--vh, 1vh) * 100)' }}
     >
@@ -605,7 +749,7 @@ export default function ChatPage() {
       </div>
       
       {/* Chat container */}
-      <div className="flex-1 overflow-y-auto overscroll-contain pb-safe">
+      <div className="flex-1 overflow-y-auto overscroll-contain pb-20 chat-container">
         <div className="flex flex-col gap-3 py-3 sm:py-4 px-2 sm:px-4 max-w-4xl mx-auto">
           {messages.length > 0 ? (
             messages.map((message) => {
@@ -639,6 +783,11 @@ export default function ChatPage() {
                     replyTo={message.replyTo}
                     replyContent={replyContent}
                     scrollToMessage={scrollToMessage}
+                    audioUrl={message.audioUrl}
+                    type={message.type}
+                    reactions={message.reactions}
+                    onAddReaction={handleAddReaction}
+                    onRemoveReaction={handleRemoveReaction}
                   />
                 </div>
               );
@@ -657,11 +806,11 @@ export default function ChatPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-indigo-900/40 backdrop-blur-md text-gray-100 px-3 py-1.5 rounded-2xl text-sm">
-                <div className="flex space-x-1">
-                  <span className="animate-bounce">•</span>
-                  <span className="animate-bounce delay-100">•</span>
-                  <span className="animate-bounce delay-200">•</span>
+              <div className="bg-indigo-900/40 backdrop-blur-md text-gray-100 px-4 py-2.5 rounded-2xl">
+                <div className="flex space-x-2">
+                  <div className="h-2 w-2 rounded-full bg-indigo-300 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="h-2 w-2 rounded-full bg-indigo-300 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="h-2 w-2 rounded-full bg-indigo-300 animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -672,9 +821,10 @@ export default function ChatPage() {
 
       <ChatInput
         onSendMessage={handleSendMessage}
+        onSendVoiceMessage={handleSendVoiceMessage}
         isProcessing={isProcessing}
         placeholder={language === 'ku' ? `نامە بۆ ${character.name}...` : `Message ${character.name}...`}
-        className="sticky bottom-0 max-w-4xl mx-auto w-full z-10 pb-safe"
+        className="fixed bottom-0 max-w-4xl mx-auto w-full z-10 left-0 right-0"
         replyTo={replyTo}
         onCancelReply={handleCancelReply}
       />

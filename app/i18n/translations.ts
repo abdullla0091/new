@@ -98,7 +98,7 @@ export const translations = {
     exploreCharacters: "Explore Characters",
     
     // Footer
-    copyright: "© 2023 CharacterChat. All rights reserved.",
+    copyright: "© 2023 Nestro Chat. All rights reserved.",
     
     // Language toggle
     switchLanguage: "کوردی",
@@ -209,7 +209,7 @@ export const translations = {
     exploreCharacters: "کەشف کردنی کەسایەتییەکان",
     
     // Footer
-    copyright: "© ٢٠٢٣ کارەکتەرچات. هەموو مافەکان پارێزراون.",
+    copyright: "© ٢٠٢٣ نێسترۆ چات. هەموو مافەکان پارێزراون.",
     
     // Language toggle
     switchLanguage: "English",
