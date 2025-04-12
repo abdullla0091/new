@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { useLanguage } from "@/app/i18n/LanguageContext"
-import { MainNav } from "@/components/main-nav"
-import { MobileNav } from "@/components/mobile-nav"
 import { Chat } from "@/types"
 
 export default function RootLayoutClient({
@@ -23,11 +21,17 @@ export default function RootLayoutClient({
     const fetchChats = async () => {
       try {
         const response = await fetch('/api/chat')
-        if (!response.ok) return
+        if (!response.ok) {
+          console.error('Failed to fetch chats: API returned status', response.status);
+          return;
+        }
+        
         const data = await response.json()
         setChats(data)
       } catch (error) {
         console.error('Failed to fetch chats:', error)
+        // Return empty array to prevent UI errors
+        setChats([])
       }
     }
     
@@ -57,7 +61,7 @@ export default function RootLayoutClient({
     }
   }, [])
   
-  // Don't show either navigation on the chat page for small screens
+  // Don't show navigation on the chat page for small screens
   if (pathname.startsWith('/chat/') && windowWidth < 768) {
     return (
       <div className="flex min-h-screen flex-col">
@@ -68,12 +72,6 @@ export default function RootLayoutClient({
   
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <MainNav className="hidden md:flex" chats={chats} />
-          <MobileNav className="md:hidden" />
-        </div>
-      </header>
       <main className="flex-1">{children}</main>
     </div>
   )

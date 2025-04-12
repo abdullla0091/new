@@ -111,7 +111,29 @@ export const translations = {
     
     // Image Uploader
     uploading: "Uploading...",
-    clickOrDrop: "Click or drop image"
+    clickOrDrop: "Click or drop image",
+    
+    // Verification
+    verification: {
+      title: "Email Verification",
+      checking: "Checking verification status...",
+      verifiedTitle: "Email Verified",
+      unverifiedTitle: "Email Not Verified",
+      verifiedDescription: "Your email address has been verified",
+      unverifiedDescription: "Please verify your email address to unlock all features",
+      verifiedMessage: "Your email address has been successfully verified.",
+      unverifiedMessage: "We sent a verification link to {email}. Please check your inbox.",
+      sendVerification: "Resend Verification Email",
+      emailSent: "Verification email sent. Please check your inbox.",
+      errorTitle: "Verification Error",
+      infoMessage: "Email verification helps secure your account and unlocks additional features.",
+      testingNote: "For demo purposes, verification codes will be displayed here instead of being sent by email.",
+      enterCode: "Enter Verification Code",
+      codeSentTo: "We sent a 4-digit code to {email}",
+      resendCode: "Resend Code",
+      cancel: "Cancel",
+      codeInvalid: "Invalid verification code. Please try again.",
+    },
   },
   ku: {
     // Navigation
@@ -222,7 +244,29 @@ export const translations = {
     
     // Image Uploader
     uploading: "بارکردن...",
-    clickOrDrop: "کلیک بکە یان وێنەکە دابنێ"
+    clickOrDrop: "کلیک بکە یان وێنەکە دابنێ",
+    
+    // Verification
+    verification: {
+      title: "پشتڕاستکردنەوەی ئیمەیل",
+      checking: "پشکنینی دۆخی پشتڕاستکردنەوە...",
+      verifiedTitle: "ئیمەیل پشتڕاست کراوەتەوە",
+      unverifiedTitle: "ئیمەیل پشتڕاست نەکراوەتەوە",
+      verifiedDescription: "ناونیشانی ئیمەیڵەکەت پشتڕاست کراوەتەوە",
+      unverifiedDescription: "تکایە ناونیشانی ئیمەیڵەکەت پشتڕاست بکەوە بۆ کردنەوەی هەموو تایبەتمەندییەکان",
+      verifiedMessage: "ناونیشانی ئیمەیڵەکەت بە سەرکەوتوویی پشتڕاست کراوەتەوە.",
+      unverifiedMessage: "لینکی پشتڕاستکردنەوەمان ناردووە بۆ {email}. تکایە سندوقی پۆستەکەت بپشکنە.",
+      sendVerification: "دووبارە ناردنی ئیمەیلی پشتڕاستکردنەوە",
+      emailSent: "ئیمەیلی پشتڕاستکردنەوە نێردرا. تکایە سندوقی پۆستەکەت بپشکنە.",
+      errorTitle: "هەڵەی پشتڕاستکردنەوە",
+      infoMessage: "پشتڕاستکردنەوەی ئیمەیل یارمەتی پاراستنی هەژمارەکەت دەدات و تایبەتمەندییەکانی زیاتر دەکاتەوە.",
+      testingNote: "بۆ مەبەستی پیشاندان، کۆدەکانی پشتڕاستکردنەوە لێرە پیشان دەدرێن لە جیاتی ئەوەی بە ئیمەیل بنێردرێن.",
+      enterCode: "کۆدی پشتڕاستکردنەوە بنووسە",
+      codeSentTo: "کۆدێکی ٤ ژمارەییمان ناردووە بۆ {email}",
+      resendCode: "دووبارە ناردنی کۆد",
+      cancel: "پاشگەزبوونەوە",
+      codeInvalid: "کۆدی پشتڕاستکردنەوە نادروستە. تکایە دووبارە هەوڵ بدەوە.",
+    },
   }
 };
 

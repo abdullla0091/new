@@ -116,13 +116,20 @@ export default function ModernNavbar() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="relative h-14 w-14">
+          <div className="relative h-14 w-14 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-2xl">
+              N
+            </div>
             <Image 
               src="/images/logo.png" 
               alt="ChatKurd Logo"
-              width={28}
-              height={28}
-              className="mr-2"
+              width={56}
+              height={56}
+              className="object-contain relative z-10"
+              onError={(e) => {
+                // Hide the image on error
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
           <span className={`font-display font-bold text-xl tracking-tighter ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>Nestro Chat</span>

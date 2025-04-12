@@ -239,6 +239,14 @@ export default function ProfilePage() {
               onClick={() => handleNavigate('/notifications')}
               isRtl={isKurdish}
             />
+            <Separator className="bg-indigo-800/50" />
+            <ProfileItem 
+              icon={User} 
+              title={isKurdish ? t("verification.title") : "Email Verification"}
+              description={isKurdish ? t("verification.unverifiedDescription") : "Verify your email address"} 
+              onClick={() => handleNavigate('/profile/verification')}
+              isRtl={isKurdish}
+            />
           </div>
           
           <div className="bg-indigo-900/50 backdrop-blur-sm rounded-xl border border-purple-500/20 overflow-hidden">

@@ -186,11 +186,30 @@ export async function POST(req: NextRequest) {
     try {
       selectedCharacter = getCharacterById(characterId);
     } catch (error) {
-      console.error("Error fetching character:", error);
+      console.error(`Error fetching character with ID ${characterId}:`, error);
+      // Provide a default character to prevent errors
+      selectedCharacter = {
+        id: 'default',
+        name: 'Assistant',
+        personalityPrompt: 'You are a helpful assistant. Be concise and provide accurate information.',
+        description: 'A helpful assistant',
+        profilePicture: '',
+        categories: ['assistant'],
+        tags: ['helpful', 'assistant'],
+      };
     }
 
     if (!selectedCharacter) {
-      return NextResponse.json({ message: 'Character not found', reply: 'Sorry, I had trouble finding that character.' }, { status: 404 });
+      console.warn(`Character with ID ${characterId} not found, using default character`);
+      selectedCharacter = {
+        id: 'default',
+        name: 'Assistant',
+        personalityPrompt: 'You are a helpful assistant. Be concise and provide accurate information.',
+        description: 'A helpful assistant',
+        profilePicture: '',
+        categories: ['assistant'],
+        tags: ['helpful', 'assistant'],
+      };
     }
 
     // Passcode check for character H
@@ -517,33 +536,52 @@ Additional character guidelines:
 
 export async function GET() {
   try {
-    const session = await authModule.auth()
-    
-    if (!session?.user?.id) {
-      return new NextResponse("Unauthorized", { status: 401 })
+    // First, check if db is available
+    if (!db || !db.chat) {
+      console.error("[CHATS_GET] Database connection not available");
+      return NextResponse.json([], { status: 200 }); // Return empty array instead of error
     }
     
-    const chats = await db.chat.findMany({
-      where: {
-        userId: session.user.id
-      },
-      include: {
-        character: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true
-          }
-        }
-      },
-      orderBy: {
-        updatedAt: "desc"
-      }
-    })
+    // Try to get auth session, but handle gracefully if it fails
+    let session;
+    try {
+      session = await authModule.auth();
+    } catch (authError) {
+      console.error("[CHATS_GET] Auth error:", authError);
+      return NextResponse.json([], { status: 200 }); // Return empty array if auth fails
+    }
     
-    return NextResponse.json(chats)
+    // If no user session, return empty array instead of error
+    if (!session?.user?.id) {
+      return NextResponse.json([], { status: 200 });
+    }
+    
+    try {
+      const chats = await db.chat.findMany({
+        where: {
+          userId: session.user.id
+        },
+        include: {
+          character: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true
+            }
+          }
+        },
+        orderBy: {
+          updatedAt: "desc"
+        }
+      });
+      
+      return NextResponse.json(chats);
+    } catch (dbError) {
+      console.error("[CHATS_GET] Database query error:", dbError);
+      return NextResponse.json([], { status: 200 }); // Return empty array if query fails
+    }
   } catch (error) {
-    console.error("[CHATS_GET]", error)
-    return new NextResponse("Internal Error", { status: 500 })
+    console.error("[CHATS_GET] General error:", error);
+    return NextResponse.json([], { status: 200 }); // Return empty array instead of 500 error
   }
 }

@@ -32,12 +32,20 @@ export default function AboutPage() {
         <div className="bg-indigo-900/50 backdrop-blur-md rounded-2xl border border-purple-500/20 p-6 mb-6">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="relative w-24 h-24">
+            <div className="relative h-24 w-24 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-3xl">
+                C
+              </div>
               <Image 
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="ChatKurd Logo"
-                fill
-                className="object-contain"
+                width={96}
+                height={96}
+                className="object-contain relative z-10"
+                onError={(e) => {
+                  // Hide the image on error
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
           </div>

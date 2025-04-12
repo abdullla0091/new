@@ -33,6 +33,7 @@ export default function SignIn() {
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isCheckingVerification, setIsCheckingVerification] = useState(false);
   const [isForceSignIn, setIsForceSignIn] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
 
   // Show verification message if coming from signup
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function SignIn() {
 
     try {
       if (useMagicLink) {
-        // Magic link authentication
+        // Magic link authentication is still kept as a fallback option
         try {
           await signInWithMagicLink(email);
           toast({
@@ -85,65 +86,7 @@ export default function SignIn() {
         return;
       }
       
-      // Force sign-in option (bypass verification check)
-      if (isForceSignIn) {
-        try {
-          await forceSignInWithPassword(email, password);
-          
-          toast({
-            title: "Success",
-            description: "Force sign-in successful! You are now signed in.",
-          });
-          
-          // Redirect to home page
-          window.location.href = "/";
-          return;
-        } catch (error: any) {
-          setDebugInfo({ 
-            forceSignInError: error instanceof Error ? error.message : String(error),
-            time: new Date().toISOString()
-          });
-          
-          toast({
-            title: "Force Sign-in Failed",
-            description: "Could not bypass verification. Check your credentials or try another method.",
-            variant: "destructive",
-          });
-          
-          throw error; // Let the main catch block handle it
-        }
-      }
-      
-      // In debug mode, bypass the context and call Supabase directly
-      if (showDebug) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) {
-          setDebugInfo({ error: error.message, code: error.status });
-          throw error;
-        }
-        
-        setDebugInfo({ success: true, data });
-        
-        toast({
-          title: "Debug Success",
-          description: "Sign in successful in debug mode. See console for details.",
-        });
-        
-        console.log("Debug sign-in successful:", data);
-        
-        // Redirect to home page after short delay to see the debug info
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000);
-        
-        return;
-      }
-      
-      // Normal flow using Auth context
+      // Normal flow using Auth context - try to sign in
       try {
         await signIn(email, password);
         
@@ -159,21 +102,32 @@ export default function SignIn() {
         if (error.message?.includes("Email not confirmed")) {
           toast({
             title: "Email Not Verified",
-            description: "Please verify your email before signing in. Check your inbox for a confirmation link.",
-            variant: "destructive",
+            description: "We'll send you a verification code to verify your email.",
+            variant: "default",
           });
           
-          // Show verification UI
+          // Show verification UI and send verification code
           setNeedsVerification(true);
-          setDebugInfo({ 
-            error: "Email not verified", 
-            message: "Please check your email for a verification link or request a new one." 
-          });
+          
+          // Send verification code
+          try {
+            await fetch('/api/auth/send-verification-code', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                email, 
+                code: Math.floor(1000 + Math.random() * 9000).toString() 
+              }),
+            });
+          } catch (verificationError) {
+            console.error('Failed to send verification code:', verificationError);
+          }
         } else {
           throw error; // Re-throw other errors to be handled by the main catch block
         }
       }
-      
     } catch (error) {
       console.error("Sign in error:", error);
       toast({
@@ -195,16 +149,56 @@ export default function SignIn() {
     window.location.href = "/";
   };
 
-  const toggleAuthMethod = () => {
-    setUseMagicLink(!useMagicLink);
+  // Handle verification code completion
+  const handleVerificationComplete = async (code: string) => {
+    setVerificationCode(code);
+    setIsCheckingVerification(true);
+    
+    try {
+      // Call the API to verify the code
+      const response = await fetch('/api/auth/confirm-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to verify code');
+      }
+      
+      // If verification was successful, try to sign in again
+      await signIn(email, password);
+      
+      toast({
+        title: "Success",
+        description: "Your email has been verified and you are now signed in!",
+      });
+      
+      // Redirect to home page
+      window.location.href = "/";
+      
+    } catch (error) {
+      console.error('Verification error:', error);
+      toast({
+        title: "Verification Failed",
+        description: error instanceof Error ? error.message : "Failed to verify your email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingVerification(false);
+    }
   };
 
-  // Function to resend verification email
+  // Function to resend verification code
   const handleResendVerification = async () => {
     if (!email) {
       toast({
         title: "Email Required",
-        description: "Please enter your email address to resend verification.",
+        description: "Please enter your email address to resend verification code.",
         variant: "destructive",
       });
       return;
@@ -213,294 +207,180 @@ export default function SignIn() {
     setIsResendingVerification(true);
     
     try {
-      await resendVerificationEmail(email);
+      const response = await fetch('/api/auth/send-verification-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email, 
+          code: Math.floor(1000 + Math.random() * 9000).toString() 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+      
       toast({
-        title: "Verification Email Sent",
-        description: "Please check your inbox for the verification link.",
+        title: "Verification Code Sent",
+        description: "Please check your email for the verification code.",
         duration: 5000,
       });
+      
     } catch (error: any) {
-      // Handle rate limiting error specifically
-      if (error.message?.includes("security purposes") || error.message?.includes("request this after")) {
-        toast({
-          title: "Rate Limited",
-          description: "Please wait before requesting another verification email.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to resend verification email. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsResendingVerification(false);
-    }
-  };
-
-  // Function to manually check verification status
-  const handleManualVerificationCheck = async () => {
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to check verification status.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsCheckingVerification(true);
-    
-    try {
-      const result = await checkEmailVerificationBypass(email);
-      
-      if (result.verified) {
-        toast({
-          title: "Email Verified",
-          description: "Your email appears to be verified. Try signing in again or use the magic link option.",
-          duration: 5000,
-        });
-        
-        // If verified, switch to magic link mode for easier sign-in
-        setUseMagicLink(true);
-        setNeedsVerification(false);
-      } else {
-        toast({
-          title: "Email Not Verified",
-          description: "Your email is not verified yet. Please check your inbox for the verification link.",
-          variant: "destructive",
-        });
-      }
-      
-      setDebugInfo({ 
-        verificationCheck: result,
-        time: new Date().toISOString()
-      });
-      
-    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to check verification status. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to resend verification code. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsCheckingVerification(false);
+      setIsResendingVerification(false);
     }
   };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 rounded-lg border bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800">
-        {verificationStatus === 'pending' && (
-          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded p-3 flex items-start">
-            <AlertCircle className="text-blue-500 mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              Please check your email to verify your account before signing in.
-            </p>
-          </div>
-        )}
-        
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Sign In
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Sign in to access your characters and chat history
+            Sign in to access your account
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            {!useMagicLink && (
+        {!needsVerification ? (
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+            <div className="space-y-4">
               <div>
                 <label
-                  htmlFor="password"
+                  htmlFor="email"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Password
+                  Email
                 </label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Password
+                  </label>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  required={!useMagicLink}
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1"
                   placeholder="••••••••"
                 />
               </div>
-            )}
+            </div>
 
-            {magicLinkSent && (
-              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded p-3 flex items-start">
-                <CheckCircle className="text-green-500 mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
-                <p className="text-sm text-green-800 dark:text-green-300">
-                  Magic link sent! Check your email for a link to sign in.
-                </p>
-              </div>
-            )}
-
-            {needsVerification && (
-              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded p-3">
-                <div className="flex items-start mb-2">
-                  <AlertCircle className="text-amber-500 mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
-                  <p className="text-sm text-amber-800 dark:text-amber-300">
-                    Your email needs to be verified before you can sign in.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-1 text-amber-700 dark:text-amber-300 border-amber-300"
-                    onClick={handleResendVerification}
-                    disabled={isResendingVerification}
-                  >
-                    <RefreshCw className={`h-3 w-3 mr-1 ${isResendingVerification ? 'animate-spin' : ''}`} />
-                    {isResendingVerification ? "Sending..." : "Resend verification email"}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-1 text-green-700 dark:text-green-300 border-green-300"
-                    onClick={handleManualVerificationCheck}
-                    disabled={isCheckingVerification}
-                  >
-                    <ShieldCheck className={`h-3 w-3 mr-1 ${isCheckingVerification ? 'animate-spin' : ''}`} />
-                    {isCheckingVerification ? "Checking..." : "I've already verified my email"}
-                  </Button>
-                  
-                  <div className="text-xs text-amber-700 dark:text-amber-400 mt-2">
-                    <p className="font-medium">Already verified but still seeing this error?</p>
-                    <ul className="list-disc list-inside mt-1 space-y-1">
-                      <li>Try using magic link sign-in instead</li>
-                      <li>Clear your browser cache and try again</li>
-                      <li>Use a different browser or private/incognito mode</li>
-                      <li>
-                        <button 
-                          className="underline text-blue-600 dark:text-blue-400" 
-                          onClick={() => setIsForceSignIn(!isForceSignIn)}
-                        >
-                          {isForceSignIn ? "Disable bypass mode" : "Enable bypass mode"}
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end">
+            <div>
               <Button
-                type="button"
-                variant="link"
-                size="sm"
-                className="text-xs text-blue-600 dark:text-blue-400"
-                onClick={toggleAuthMethod}
+                type="submit"
+                className="w-full"
+                disabled={isLoading || authLoading}
               >
-                {useMagicLink 
-                  ? "Sign in with password instead" 
-                  : "Sign in with magic link instead"}
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </div>
 
-            {showDebug && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded p-3">
-                <p className="text-xs text-yellow-800 dark:text-yellow-300 font-medium mb-2">
-                  Debug Mode Active
-                </p>
-                <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                  This bypasses the AuthContext and calls Supabase directly.
-                </p>
-                {debugInfo && (
-                  <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-x-auto">
-                    <pre className="text-xs">
-                      {JSON.stringify(debugInfo, null, 2)}
-                    </pre>
-                  </div>
-                )}
+            <div className="flex flex-col space-y-3">
+              <div className="text-center">
+                <span className="text-sm text-gray-500">Don't have an account? </span>
+                <Link 
+                  href="/auth/signup" 
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
+                  Sign up
+                </Link>
               </div>
-            )}
-          </div>
-
-          <div>
-            <Button
-              type="submit"
-              className={`w-full ${isForceSignIn ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-              disabled={isLoading}
-            >
-              {isLoading 
-                ? "Processing..." 
-                : useMagicLink 
-                  ? "Send Magic Link" 
-                  : isForceSignIn 
-                    ? "Force Sign In (Bypass Verification)" 
-                    : "Sign In"}
-            </Button>
-          </div>
-
-          <div className="flex flex-col space-y-3">
+              
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSkip}
+                >
+                  Skip and Continue as Guest <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          <div className="mt-8 space-y-6">
             <div className="text-center">
-              <span className="text-sm text-gray-500">Don't have an account? </span>
-              <Link 
-                href="/auth/signup" 
-                className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Enter Verification Code
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                We sent a 4-digit code to {email}
+              </p>
+            </div>
+            
+            <div className="mt-6">
+              <VerificationCodeInput 
+                length={4} 
+                onComplete={handleVerificationComplete} 
+                isLoading={isCheckingVerification} 
+              />
+            </div>
+            
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                className="text-sm"
+                onClick={handleResendVerification}
+                disabled={isResendingVerification}
               >
-                Sign up
-              </Link>
+                {isResendingVerification ? "Sending..." : "Didn't receive the code? Send again"}
+              </Button>
             </div>
             
             <div className="text-center">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mt-2"
-                onClick={handleSkip}
+                className="text-sm w-full"
+                onClick={() => setNeedsVerification(false)}
               >
-                Skip and Continue as Guest <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="text-center mt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-xs text-gray-500"
-                onClick={() => setShowDebug(!showDebug)}
-              >
-                <Bug className="h-3 w-3 mr-1" />
-                {showDebug ? "Hide Debug Mode" : "Debug Mode"}
+                Back to Sign In
               </Button>
             </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
