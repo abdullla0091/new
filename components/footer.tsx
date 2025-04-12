@@ -10,7 +10,7 @@ export default function Footer() {
   const isKurdish = language === "ku"
   
   return (
-    <footer className="w-full py-8 px-4 bg-indigo-950/50 backdrop-blur-md border-t border-purple-500/10 mt-auto">
+    <footer className="w-full py-8 px-4 bg-indigo-950/50 backdrop-blur-md border-t border-purple-500/10 mt-auto hidden md:block">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-6 md:mb-0">

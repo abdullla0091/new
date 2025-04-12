@@ -8,6 +8,7 @@ import { useLanguage } from "./i18n/LanguageContext"
 import LanguageToggle from "@/components/language-toggle"
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 // Dynamically import components with client-side rendering
 const CharacterEyes = dynamic(() => import("@/components/landing/character-eyes"), { ssr: false })
@@ -580,6 +581,37 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Footer - completely hidden on mobile screens */}
+      <footer className="bg-indigo-950 py-12 mt-auto hidden md:block">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center gap-2 mb-6 md:mb-0">
+              <div className="relative h-12 w-12">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="ChatKurd Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-bold text-xl">ChatKurd</span>
+            </div>
+            <div className="flex gap-8 mb-6 md:mb-0">
+              <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                {t("privacy")}
+              </Link>
+              <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
+                {t("terms")}
+              </Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                {t("contact")}
+              </Link>
+            </div>
+            <div className="text-gray-400">© 2025 ChatKurd. {t("allRightsReserved")}</div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
