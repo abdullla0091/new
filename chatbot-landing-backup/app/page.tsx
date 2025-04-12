@@ -91,8 +91,8 @@ export default function Home() {
         </Button>
       </header>
 
-      {/* Hero Section with Simplified Background */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Section with Simplified Background - increased height and moved content up */}
+      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
         {/* Option 1: Simplified Background */}
         <SimplifiedBackground />
 
@@ -117,7 +117,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="container mx-auto px-4 py-20 relative z-10 text-center">
+        <div className="container mx-auto px-4 py-20 relative z-10 text-center mt-[-80px]">
           <div className="bg-indigo-900/20 backdrop-blur-md p-8 md:p-12 rounded-3xl max-w-4xl mx-auto border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
             <div className="relative h-24 md:h-32 mb-4">
               <CharacterEyes />
@@ -375,37 +375,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer - completely hidden on mobile screens */}
-      <footer className="bg-indigo-950 py-12 mt-auto hidden md:block">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <div className="relative h-12 w-12">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="Nestro Chat Logo"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <span className="font-bold text-xl">Nestro Chat</span>
-            </div>
-            <div className="flex gap-8 mb-6 md:mb-0">
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                Privacy
-              </Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                Terms
-              </Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                Contact
-              </Link>
-            </div>
-            <div className="text-gray-400">© 2025 Nestro Chat. All rights reserved.</div>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

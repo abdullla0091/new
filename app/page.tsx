@@ -109,15 +109,15 @@ export default function Home() {
       {/* Modern Navbar */}
       <ModernNavbar />
 
-      {/* Hero Section with Simplified Background */}
-      <section ref={heroRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
+      {/* Hero Section with Simplified Background - increased height and moved content up */}
+      <section ref={heroRef} className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16">
         {/* Simplified Background */}
         <SimplifiedBackground />
 
         {/* Add a subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/70 via-transparent to-indigo-950/70 z-[1]"></div>
 
-        <div className="w-full px-4 py-20 relative z-10 text-center">
+        <div className="w-full px-4 py-20 relative z-10 text-center mt-[-80px]">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -581,37 +581,6 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </section>
-
-      {/* Footer - completely hidden on mobile screens */}
-      <footer className="bg-indigo-950 py-12 mt-auto hidden md:block">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <div className="relative h-12 w-12">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="ChatKurd Logo"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <span className="font-bold text-xl">ChatKurd</span>
-            </div>
-            <div className="flex gap-8 mb-6 md:mb-0">
-              <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
-                {t("privacy")}
-              </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
-                {t("terms")}
-              </Link>
-              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
-                {t("contact")}
-              </Link>
-            </div>
-            <div className="text-gray-400">© 2025 ChatKurd. {t("allRightsReserved")}</div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
