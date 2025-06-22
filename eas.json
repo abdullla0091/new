@@ -9,7 +9,10 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "node": {
+        "npmInstallCommand": "npm install --legacy-peer-deps"
+      }
     },
     "production": {
       "autoIncrement": true
