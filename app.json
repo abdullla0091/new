@@ -7,6 +7,9 @@
     "web": {
       "bundler": "metro"
     },
+    "android": {
+      "package": "com.abdullla001.mynextapp"
+    },
     "extra": {
       "eas": {
         "projectId": "5adbad32-c22b-490c-ab52-0e415a5299ba"
