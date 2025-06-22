@@ -6,16 +6,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "node": "18.x.x",
+      "image": "latest"
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-      }
+      },
+      "node": "18.x.x",
+      "image": "latest"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "node": "18.x.x",
+      "image": "latest"
     }
   },
   "submit": {
