@@ -10,8 +10,8 @@
     },
     "preview": {
       "distribution": "internal",
-      "node": {
-        "npmInstallCommand": "npm install --legacy-peer-deps"
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     },
     "production": {
