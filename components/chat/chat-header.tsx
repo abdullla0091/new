@@ -32,7 +32,7 @@ export default function ChatHeader({
   const router = useRouter();
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex items-center justify-between p-2 sm:p-3 bg-indigo-950/90 backdrop-blur-md border-b border-purple-500/20 z-50 shadow-[0_4px_20px_rgba(88,28,135,0.15)]">
+    <header className="sticky top-0 flex items-center justify-between p-2 sm:p-3 bg-indigo-950/80 backdrop-blur-md border-b border-purple-500/20 z-50 shadow-[0_4px_20px_rgba(88,28,135,0.15)]">
       <div className="flex items-center flex-1 min-w-0">
         <Button 
           variant="ghost" 

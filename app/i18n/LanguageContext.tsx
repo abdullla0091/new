@@ -19,10 +19,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Set translations directly from the imported module
     setTranslations(defaultTranslations[language] || defaultTranslations.en);
     
-    // Set HTML lang attribute for proper language indication
+    // Set HTML lang attribute
     document.documentElement.lang = language;
-    
-    // Simpler approach: Toggle a single class based on language
     if (language === "ku") {
       document.documentElement.classList.add("kurdish");
     } else {

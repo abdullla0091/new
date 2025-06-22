@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #6b46c1;
+    }
+    .container {
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Server Test Page</h1>
+  <div class="container">
+    <p>If you can see this page, your server is working correctly!</p>
+    <p>This static HTML file is being served from the public directory.</p>
+    <p>Current time: <span id="current-time"></span></p>
+  </div>
+
+  <script>
+    // Display the current time
+    function updateTime() {
+      const timeElement = document.getElementById('current-time');
+      timeElement.textContent = new Date().toLocaleTimeString();
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html> 

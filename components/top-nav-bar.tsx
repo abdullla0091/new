@@ -1,18 +1,17 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Search, Star, User, Sparkles, MessageSquare, Bell, Globe } from "lucide-react"
+import { Home, Search, Star, User, Sparkles, MessageSquare, Bell } from "lucide-react"
 import { useLanguage } from "@/app/i18n/LanguageContext"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import LanguageToggle from "./language-toggle"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 
 export default function TopNavBar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { language, t, setLanguage } = useLanguage()
+  const { language, t } = useLanguage()
   const isKurdish = language === "ku"
   const [scrolled, setScrolled] = useState(false)
   
@@ -26,11 +25,6 @@ export default function TopNavBar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   
-  // Handle language toggle
-  const handleLanguageToggle = () => {
-    setLanguage(language === "en" ? "ku" : "en")
-  }
-
   const tabs = [
     { name: t("home"), path: "/home", icon: Home },
     { name: t("explore"), path: "/explore", icon: Search },
@@ -44,7 +38,7 @@ export default function TopNavBar() {
       className={cn(
         "hidden md:block fixed top-0 left-0 right-0 backdrop-blur-lg border-b border-purple-500/20 z-50 transition-all duration-300",
         scrolled ? "shadow-[0_4px_30px_rgba(139,92,246,0.2)] h-14" : "h-16",
-        isKurdish ? 'kurdish' : ''
+        isKurdish ? 'use-local-kurdish' : ''
       )}
     >
       <div className="w-full mx-auto px-6 h-full">
@@ -97,16 +91,7 @@ export default function TopNavBar() {
               <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full"></span>
             </button>
             
-            {/* Language toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLanguageToggle}
-              className="flex items-center gap-1 text-white hover:bg-indigo-800/30 rounded-md transition-all duration-200"
-            >
-              <Globe className="h-4 w-4 text-purple-300" />
-              <span className="text-gray-200">{language.toUpperCase()}</span>
-            </Button>
+            <LanguageToggle />
             
             <Link href="/auth/signin">
               <button className="py-1.5 px-4 bg-purple-600 hover:bg-purple-700 rounded-md transition-all duration-200 text-sm font-medium shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:scale-105">

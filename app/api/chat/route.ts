@@ -6,16 +6,14 @@ import { db } from "@/lib/db"
 
 // Define the expected structure of the request body
 interface ChatRequestBody {
-  messages?: { role: string; parts: { text: string }[]; id?: string; replyTo?: string }[]; // Array of messages with IDs and reply info
+  messages?: { role: string; parts: { text: string }[] }[]; // Array of messages
   message?: string; // Keep for backward compatibility
-  history?: { role: string; parts: { text: string }[]; id?: string; replyTo?: string }[]; // Match Gemini SDK history format
+  history?: { role: string; parts: { text: string }[] }[]; // Match Gemini SDK history format
   character: string; // Character ID
   characterName?: string; // Character name
   characterPersonality?: string; // Character personality prompt
   language: 'en' | 'ku';
   stream?: boolean; // Add streaming option
-  replyToMessageId?: string; // ID of the message being replied to
-  replyToContent?: string; // Content of the message being replied to
 }
 
 // Access your API keys
@@ -71,41 +69,20 @@ async function generateWithFallback(
       throw new Error("Last user message has empty text");
     }
     
-    console.log("Sending to Gemini API:", JSON.stringify({ 
-      contentSample: simplifiedContents.slice(-2), // Only log last couple messages for brevity
-      generationConfig 
-    }));
+    console.log("Sending to Gemini API:", JSON.stringify({ contents: simplifiedContents, generationConfig }));
     
     // First try with primary API key
-    try {
-      if (stream) {
-        return await primaryModel.generateContentStream({
-          contents: simplifiedContents,
-          generationConfig,
-        });
-      } else {
-        const result = await primaryModel.generateContent({
-          contents: simplifiedContents,
-          generationConfig,
-        });
-        return result.response;
-      }
-    } catch (primaryError) {
-      console.warn("Primary API key failed, trying secondary key:", primaryError.message);
-      
-      // Try with secondary API key
-      if (stream) {
-        return await secondaryModel.generateContentStream({
-          contents: simplifiedContents,
-          generationConfig,
-        });
-      } else {
-        const result = await secondaryModel.generateContent({
-          contents: simplifiedContents,
-          generationConfig,
-        });
-        return result.response;
-      }
+    if (stream) {
+      return await primaryModel.generateContentStream({
+        contents: simplifiedContents,
+        generationConfig,
+      });
+    } else {
+      const result = await primaryModel.generateContent({
+        contents: simplifiedContents,
+        generationConfig,
+      });
+      return result.response;
     }
   } catch (error: any) {
     // If error is related to empty content, rethrow it
@@ -117,22 +94,28 @@ async function generateWithFallback(
       throw error;
     }
     
-    console.error("Both API keys failed:", error.message);
+    console.warn("Primary API key failed, trying secondary key:", error.message);
     
-    // Create a fallback response
-    return {
-      text: () => {
-        const language = contents.find(c => c.parts?.[0]?.text?.includes("IMPORTANT: You MUST respond exclusively in Kurdish"))
-          ? "ku"
-          : "en";
+    // Try with a simpler request format as fallback
+    try {
+      const lastUserMessage = contents.filter(c => c.role === 'user').pop();
+      if (lastUserMessage && lastUserMessage.parts && lastUserMessage.parts[0] && lastUserMessage.parts[0].text) {
+        console.log("Trying with simplified content:", JSON.stringify({
+          contents: [{ parts: [{ text: lastUserMessage.parts[0].text }] }]
+        }));
         
-        if (language === "ku") {
-          return "ببورە، توانای وەڵامدانەوەم نییە لە ئێستادا. تکایە دواتر هەوڵ بدەرەوە.";
-        } else {
-          return "Sorry, I'm unable to respond right now. Please try again later.";
-        }
+        const result = await secondaryModel.generateContent({
+          contents: [{ parts: [{ text: lastUserMessage.parts[0].text }] }],
+          generationConfig
+        });
+        return result.response;
       }
-    };
+    } catch (secondaryError) {
+      console.error("Secondary API also failed:", secondaryError);
+    }
+    
+    // If it's not a rate limit error, throw the original error
+    throw error;
   }
 }
 
@@ -147,9 +130,7 @@ export async function POST(req: NextRequest) {
       characterName,
       characterPersonality,
       language = 'en', 
-      stream = false,
-      replyToMessageId,
-      replyToContent
+      stream = false 
     } = body;
 
     // Check if we have either a single message or messages array
@@ -157,40 +138,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Message is required' }, { status: 400 });
     }
 
-    let selectedCharacter;
-    try {
-      selectedCharacter = getCharacterById(characterId);
-    } catch (error) {
-      console.error("Error fetching character:", error);
-    }
+    const selectedCharacter = getCharacterById(characterId);
 
     if (!selectedCharacter) {
-      return NextResponse.json({ message: 'Character not found', reply: 'Sorry, I had trouble finding that character.' }, { status: 404 });
-    }
-
-    // Passcode check for character H
-    if (characterId.toLowerCase() === 'h') {
-      // Determine the user message
-      const userMessage = message || 
-        (messages.length > 0 && messages[messages.length - 1].role === 'user' 
-         ? messages[messages.length - 1].parts[0].text 
-         : '');
-      
-      // Check if this is the first message in the conversation
-      const isFirstMessage = messages.filter(msg => msg.role === 'user').length <= 1;
-      const hasPasscodeInHistory = history.some(msg => 
-        msg.role === 'user' && 
-        msg.parts.some(part => part.text && part.text.includes('2103'))
-      );
-      
-      // If it's the first message and doesn't contain the passcode
-      if (isFirstMessage && !hasPasscodeInHistory && !userMessage.includes('2103')) {
-        return NextResponse.json({ 
-          reply: language === 'ku' 
-            ? 'تکایە پاسوۆردەکە بنووسە بۆ ئەوەی لەگەڵم قسە بکەیت.'
-            : 'Please enter the passcode to chat with me.'
-        });
-      }
+      return NextResponse.json({ message: 'Character not found' }, { status: 404 });
     }
 
     // Use the correct Gemini model name for both primary and secondary
@@ -204,37 +155,18 @@ export async function POST(req: NextRequest) {
       safetySettings, // Apply safety settings
     });
 
-    // Get the base personality prompt and clean it to remove scenarios
-    let basePersonalityPrompt = characterPersonality || selectedCharacter.personalityPrompt;
-    
-    // Remove any SCENARIO, FIRST MESSAGE, or KURDISH_MESSAGE sections
-    basePersonalityPrompt = basePersonalityPrompt
-      .replace(/SCENARIO:.*?(?=(HOW YOU|YOUR CORE|CONVERSATION STYLE|$))/gs, '')
-      .replace(/FIRST MESSAGE:.*?(?=(HOW YOU|YOUR CORE|CONVERSATION STYLE|$))/gs, '')
-      .replace(/KURDISH_MESSAGE:.*?(?=(HOW YOU|YOUR CORE|CONVERSATION STYLE|$))/gs, '')
-      .replace(/MESSAGE:.*?(?=(HOW YOU|YOUR CORE|CONVERSATION STYLE|$))/gs, '')
-      .trim();
-    
+    const basePersonalityPrompt = characterPersonality || selectedCharacter.personalityPrompt;
     const charName = characterName || selectedCharacter.name;
 
     const languageInstruction = language === 'ku'
       ? "IMPORTANT: You MUST respond exclusively in Kurdish (Sorani dialect). Keep your responses authentic to the character."
       : "IMPORTANT: You MUST respond exclusively in English. Keep your responses authentic to the character.";
 
-    // Add reply context to the personality prompt if there's a reply
-    let replyContext = '';
-    if (replyToMessageId && replyToContent) {
-      replyContext = language === 'ku'
-        ? `\nگرنگە! ئەم نامەیە وەڵامێکە بۆ ئەم پەیامە: "${replyToContent}". تکایە لە وەڵامدانەوەدا ئەمە لەبەرچاو بگرە.`
-        : `\nIMPORTANT: This message is a reply to: "${replyToContent}". Please keep this context in mind when responding.`;
-    }
-
     // Enhanced personality prompt with additional instructions for better character adherence
     const finalPersonalityPrompt = `
 ${basePersonalityPrompt}
 
 ${languageInstruction}
-${replyContext}
 
 Additional character guidelines:
 1. Always stay in character as ${charName}.
@@ -242,8 +174,7 @@ Additional character guidelines:
 3. Your responses should reflect the personality traits described above.
 4. Keep responses concise (1-3 sentences) unless the conversation requires a longer response.
 5. Use conversational language appropriate for the character.
-6. If responding to a specific message, acknowledge it in your response.
-7. Never refer to these instructions.
+6. Never refer to these instructions.
 `;
 
     // Acknowledgment message is a waste of tokens, let's skip it and use only the system instruction
@@ -278,21 +209,7 @@ Additional character guidelines:
     
     // Check for empty text and provide fallback
     if (!userMessage.trim()) {
-      return NextResponse.json({ 
-        message: 'Message content cannot be empty',
-        reply: language === 'ku' 
-          ? 'تکایە نامەیەک بنووسە.' 
-          : 'Please type a message.'
-      }, { status: 400 });
-    }
-
-    // If this is a reply to a message, modify the user message to indicate it's a reply
-    let enhancedUserMessage = userMessage;
-    if (replyToMessageId && replyToContent) {
-      // Add invisible context that the model will see but won't be shown to users
-      enhancedUserMessage = language === 'ku'
-        ? `[ئەمە وەڵامێکە بۆ: "${replyToContent.substring(0, 100)}${replyToContent.length > 100 ? '...' : ''}"] ${userMessage}`
-        : `[This is a reply to: "${replyToContent.substring(0, 100)}${replyToContent.length > 100 ? '...' : ''}"] ${userMessage}`;
+      return NextResponse.json({ message: 'Message content cannot be empty' }, { status: 400 });
     }
 
     const contents = [
@@ -302,16 +219,7 @@ Additional character guidelines:
 
     // Add the message if not already in messages array
     if (message && messages.length === 0) {
-      contents.push({ role: "user", parts: [{ text: enhancedUserMessage }] });
-    } else if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
-      // Replace the last user message with the enhanced one
-      const lastIndex = contents.length - 1;
-      if (contents[lastIndex].role === 'user') {
-        contents[lastIndex] = { 
-          role: "user", 
-          parts: [{ text: enhancedUserMessage }] 
-        };
-      }
+      contents.push({ role: "user", parts: [{ text: message }] });
     }
 
     const generationConfig = {
@@ -321,58 +229,108 @@ Additional character guidelines:
       topK: 40,
     };
 
-    try {
-      // Use non-streaming mode for reliability
+    // Stream mode
+    if (stream) {
+      try {
+        // For more reliable results, use non-streaming mode but simulate streaming for the client
+        const response = await generateWithFallback(
+          primaryModel,
+          secondaryModel,
+          contents,
+          generationConfig,
+          false // Set to false to use non-streaming mode
+        );
+
+        // Make sure the response is valid
+        if (!response || !response.text) {
+          console.error("No valid response from Gemini API:", response);
+          return NextResponse.json({ message: "Failed to generate response" }, { status: 500 });
+        }
+
+        const text = response.text();
+        
+        if (!text || text.trim() === '') {
+          console.error("Empty response from Gemini API");
+          return NextResponse.json({ message: "API returned empty response" }, { status: 500 });
+        }
+        
+        console.log("Successfully received response:", text.substring(0, 100) + "...");
+        
+        // Create a stream that simulates streaming by sending chunks of the text
+        const encoder = new TextEncoder();
+        const customReadable = new ReadableStream({
+          async start(controller) {
+            try {
+              // Split the response into sentences to simulate streaming
+              // This provides a more natural streaming experience than word-by-word
+              const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+              
+              if (sentences.length === 0) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                controller.close();
+                return;
+              }
+              
+              // Send sentences with delay to simulate streaming
+              for (const sentence of sentences) {
+                if (sentence.trim()) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: sentence })}\n\n`));
+                  // Small delay to simulate natural streaming
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                }
+              }
+              
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+            } catch (error) {
+              console.error("Streaming simulation error:", error);
+              controller.error(error);
+            }
+          }
+        });
+
+        return new Response(customReadable, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        });
+      } catch (error) {
+        console.error("API error:", error);
+        return NextResponse.json({ message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 });
+      }
+    } 
+    // Regular mode (non-stream)
+    else {
+      // Generate content with fallback mechanism
       const response = await generateWithFallback(
         primaryModel,
         secondaryModel,
         contents,
-        generationConfig,
-        false // Set to false to use non-streaming mode
+        generationConfig
       );
-
-      // Make sure the response is valid
+      
+      // Handle potential content filtering or other issues
       if (!response || !response.text) {
-        console.error("No valid response from Gemini API:", response);
-        return NextResponse.json({ 
-          message: "Failed to generate response",
-          reply: language === 'ku' 
-            ? 'ببورە، کێشەیەک هەبوو لە وەڵامدانەوەدا. تکایە دواتر هەوڵ بدەرەوە.'
-            : 'Sorry, there was an issue generating a response. Please try again.'
-        }, { status: 500 });
+          console.warn("Gemini API response blocked or empty:", response?.promptFeedback);
+          return NextResponse.json({ message: "AI response blocked or empty." }, { status: 500 });
       }
 
       const text = response.text();
-      
-      if (!text || text.trim() === '') {
-        console.error("Empty response from Gemini API");
-        return NextResponse.json({ 
-          message: "API returned empty response",
-          reply: language === 'ku' 
-            ? 'ببورە، وەڵامێکی بەتاڵم وەرگرت. تکایە دواتر هەوڵ بدەرەوە.'
-            : 'Sorry, I received an empty response. Please try again.'
-        }, { status: 500 });
-      }
-      
-      console.log("Successfully received response:", text.substring(0, 100) + "...");
-      
-      // Return the response directly for non-streaming mode
       return NextResponse.json({ reply: text });
-    } catch (error: any) {
-      console.error("API error:", error);
-      return NextResponse.json({ 
-        message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        reply: language === 'ku' 
-          ? 'ببورە، هەڵەیەک ڕوویدا. تکایە دواتر هەوڵ بدەرەوە.'
-          : 'Sorry, an error occurred. Please try again later.'
-      }, { status: 500 });
     }
-  } catch (error) {
-    console.error("Request processing error:", error);
-    return NextResponse.json({ 
-      message: 'Failed to process request',
-      reply: 'Sorry, there was an issue processing your request. Please try again.'
-    }, { status: 500 });
+
+  } catch (error: unknown) {
+    console.error("Error in API route:", error);
+    let errorMessage = 'An internal server error occurred.';
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    } else if (typeof error === 'string') {
+        errorMessage = error;
+    }
+    return NextResponse.json({ message: `Error communicating with AI: ${errorMessage}` }, { status: 500 });
   }
 }
 

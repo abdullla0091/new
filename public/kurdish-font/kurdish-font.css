@@ -1,0 +1,8 @@
+/* Kurdish font definition */
+@font-face {
+  font-family: 'NizarBukra';
+  src: url('NizarBukraRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+} 

@@ -39,8 +39,6 @@ export const translations = {
     meetCharactersTitle: "Meet Our Characters",
     eachWithPersonality: "Each with their own personality, expertise, and conversation style.",
     startChatting: "Start Chatting",
-    instantResponse: "Get instant responses to your messages",
-    noSignupRequired: "No signup required, start now",
     
     // Features section
     capabilities: "CAPABILITIES",
@@ -113,8 +111,6 @@ export const translations = {
     meetCharactersTitle: "کەسایەتییەکانمان بناسە",
     eachWithPersonality: "هەر یەکەیان کەسایەتی، شارەزایی و شێوازی گفتوگۆی تایبەت بە خۆیان هەیە.",
     startChatting: "دەست بکە بە گفتوگۆ",
-    instantResponse: "وەڵامی دەستبەجێ بۆ پەیامەکانت وەرگرە",
-    noSignupRequired: "پێویست بە ناونووسین ناکات، ئێستا دەستپێبکە",
     
     // Features section
     capabilities: "تواناکان",
@@ -152,5 +148,5 @@ export const translations = {
 };
 
 export function getTranslation(lang: Language, key: keyof typeof translations.en): string {
-  return translations[lang][key as keyof typeof translations[typeof lang]] || translations.en[key];
+  return translations[lang][key] || translations.en[key];
 } 

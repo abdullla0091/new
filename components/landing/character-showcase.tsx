@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { ArrowRight, ArrowLeft, ArrowRightCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useLanguage } from "@/app/i18n/LanguageContext"
 import { characters } from "@/lib/characters"
+import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { motion, AnimatePresence } from "framer-motion"
 
 // Generate a background color based on the character name
 function getAvatarGradient(name: string): string {
@@ -27,200 +27,118 @@ function getAvatarGradient(name: string): string {
 
 export default function CharacterShowcase() {
   // Select a subset of characters to showcase
-  const showcaseCharacters = characters.slice(0, 6); // Show 6 characters instead of 4
+  const showcaseCharacters = characters.slice(0, 4);
   const [activeIndex, setActiveIndex] = useState(0)
   const { language, t } = useLanguage();
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Auto-rotate the featured character every 8 seconds
+    // Auto-rotate the featured character every 5 seconds
     const interval = setInterval(() => {
       setActiveIndex((current) => (current + 1) % showcaseCharacters.length)
-    }, 8000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [showcaseCharacters.length])
 
   const activeCharacter = showcaseCharacters[activeIndex]
 
-  const handlePrevious = () => {
-    setActiveIndex((current) => (current - 1 + showcaseCharacters.length) % showcaseCharacters.length);
-  };
-
-  const handleNext = () => {
-    setActiveIndex((current) => (current + 1) % showcaseCharacters.length);
-  };
-
-  // Safely get translation with fallback
-  const getTranslation = (key: string, fallback: string = ""): string => {
-    try {
-      return t(key) || fallback;
-    } catch (error) {
-      console.error(`Translation error for key: ${key}`, error);
-      return fallback;
-    }
-  };
-
   return (
-    <div className="max-w-6xl mx-auto" ref={containerRef}>
-      {/* Character Carousel */}
-      <div className="relative">
-        {/* Navigation arrows */}
-        <button
-          onClick={handlePrevious}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 md:-translate-x-6 z-20 bg-purple-800/80 hover:bg-purple-700 text-white rounded-full p-2 shadow-xl backdrop-blur-sm transition-all duration-300"
-          aria-label="Previous character"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        
-        <button
-          onClick={handleNext}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 md:translate-x-6 z-20 bg-purple-800/80 hover:bg-purple-700 text-white rounded-full p-2 shadow-xl backdrop-blur-sm transition-all duration-300"
-          aria-label="Next character"
-        >
-          <ArrowRight className="h-5 w-5" />
-        </button>
+    <div className="max-w-4xl mx-auto">
+      {/* Featured character card */}
+      <div className="relative bg-indigo-800/30 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.15)] mb-12 overflow-hidden">
+        {/* Background gradient animation */}
+        <div
+          className={`absolute top-0 left-0 w-full h-full opacity-10 bg-gradient-to-r ${getAvatarGradient(activeCharacter.name)}`}
+          style={{
+            transform: "rotate(-5deg) scale(1.2)",
+            transformOrigin: "top left",
+          }}
+        />
 
-        {/* Main character card with 3D effect */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCharacter.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="relative bg-gradient-to-br from-indigo-900/80 to-purple-900/80 backdrop-blur-lg rounded-2xl overflow-hidden shadow-[0_5px_30px_rgba(88,28,135,0.5)] border border-purple-500/30"
-          >
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl"></div>
-            <div className="absolute top-10 left-10 w-16 h-16 bg-purple-500/10 rounded-full blur-lg"></div>
-            
-            {/* Character details */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-0 p-8 relative z-10">
-              {/* Avatar and basic info */}
-              <div className="md:col-span-4 flex flex-col items-center md:items-start justify-center mb-6 md:mb-0 order-1 md:order-1">
-                <div className="relative">
-                  <div className={`w-32 h-32 rounded-full bg-gradient-to-r ${getAvatarGradient(activeCharacter.name)} shadow-[0_0_20px_rgba(139,92,246,0.5)] mb-5 overflow-hidden ring-4 ring-purple-500/30 ring-offset-2 ring-offset-indigo-900/50`}>
-                    {activeCharacter.avatar ? (
-                      <Avatar className="w-full h-full">
-                        <AvatarImage src={activeCharacter.avatar} alt={activeCharacter.name} className="w-full h-full object-cover" />
-                        <AvatarFallback className="text-3xl font-bold">{activeCharacter.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">
-                        {activeCharacter.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Status indicator */}
-                  <div className="absolute -bottom-1 right-0 bg-green-500 w-6 h-6 rounded-full border-4 border-indigo-900 flex items-center justify-center">
-                    <span className="sr-only">Online</span>
-                  </div>
-                </div>
-
-                <h3 className="text-2xl font-bold text-white mb-2 text-center md:text-left">{activeCharacter.name}</h3>
-                
-                {/* Rating with stars */}
-                {activeCharacter.rating && (
-                  <div className="flex items-center mb-3">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg
-                          key={star}
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          className={`w-4 h-4 ${
-                            parseFloat(activeCharacter.rating as string) >= star
-                              ? "text-yellow-400"
-                              : "text-gray-400"
-                          }`}
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-yellow-300 font-medium ml-2">{activeCharacter.rating}</span>
-                    <span className="text-gray-400 text-sm ml-1">/ 5.0</span>
-                  </div>
-                )}
-                
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
-                  {activeCharacter.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs font-medium bg-purple-800/60 text-purple-200 rounded-full px-3 py-1 border border-purple-700/30"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Description and chat button */}
-              <div className="md:col-span-8 flex flex-col justify-center order-2 md:order-2 px-0 md:px-6">
-                <div className="bg-indigo-950/40 backdrop-blur-sm rounded-xl p-6 mb-6 border border-purple-700/20 shadow-inner">
-                  <p className="text-gray-200 text-lg leading-relaxed">{activeCharacter.description}</p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  <Link href={`/chat/${activeCharacter.id}`} className="w-full sm:w-auto">
-                    <Button className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl px-8 py-6 text-lg shadow-[0_5px_15px_rgba(107,33,168,0.4)] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(107,33,168,0.6)] hover:-translate-y-1 flex items-center justify-center">
-                      {getTranslation("startChatting", "Start Chatting")}
-                      <ArrowRightCircle className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  
-                  <div className="text-center sm:text-left text-sm text-gray-300">
-                    <span className="block">
-                      {getTranslation("instantResponse", "Get instant responses")}
-                    </span>
-                    <span className="block text-purple-400">
-                      {getTranslation("noSignupRequired", "No signup required")}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+          {/* Avatar */}
+          <div className="flex flex-col items-center justify-center">
+            <div
+              className={`text-6xl w-28 h-28 flex items-center justify-center rounded-full bg-gradient-to-r ${getAvatarGradient(activeCharacter.name)} shadow-lg mb-4 overflow-hidden`}
+            >
+              {activeCharacter.avatar ? (
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={activeCharacter.avatar} alt={activeCharacter.name} className="object-cover" />
+                  <AvatarFallback className="text-2xl">{activeCharacter.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+              ) : (
+                activeCharacter.name.charAt(0)
+              )}
             </div>
-          </motion.div>
-        </AnimatePresence>
+            <h3 className="text-2xl font-bold text-white mb-1">{activeCharacter.name}</h3>
+            <p className="text-purple-300 font-medium">{activeCharacter.tags[0]}</p>
+            {activeCharacter.rating && (
+              <div className="flex items-center mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-4 h-4 text-yellow-400"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-yellow-300 ml-1">{activeCharacter.rating}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="md:col-span-2 flex flex-col justify-center">
+            <p className="text-gray-200 text-lg mb-6">{activeCharacter.description}</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {activeCharacter.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs font-medium bg-purple-900/50 text-purple-200 rounded-full px-2.5 py-1"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <Link href={`/chat/${activeCharacter.id}`}>
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                {t("startChatting")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Character selection indicators */}
-      <div className="mt-8 flex justify-center space-x-2">
+      {/* Thumbnails for other characters */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {showcaseCharacters.map((character, index) => (
           <button
             key={character.id}
-            className={`w-12 h-12 rounded-full relative border-2 transition-all duration-300 ${
+            className={`p-4 rounded-xl text-center transition-all duration-300 ${
               index === activeIndex
-                ? "border-purple-400 scale-110 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-                : "border-transparent opacity-60 hover:opacity-100"
+                ? "bg-purple-800/50 shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+                : "bg-indigo-900/30 hover:bg-indigo-800/40"
             }`}
             onClick={() => setActiveIndex(index)}
-            aria-label={`View ${character.name}`}
           >
-            {character.avatar ? (
-              <Avatar className="w-full h-full">
-                <AvatarImage 
-                  src={character.avatar} 
-                  alt={character.name} 
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-sm">{character.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            ) : (
-              <div className={`w-full h-full rounded-full flex items-center justify-center bg-gradient-to-r ${getAvatarGradient(character.name)}`}>
-                <span className="text-white text-sm font-bold">{character.name.charAt(0)}</span>
-              </div>
-            )}
+            <div
+              className={`text-3xl w-14 h-14 mx-auto flex items-center justify-center rounded-full bg-gradient-to-r ${getAvatarGradient(character.name)} shadow-md mb-2 overflow-hidden`}
+            >
+              {character.avatar ? (
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={character.avatar} alt={character.name} className="object-cover" />
+                  <AvatarFallback>{character.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+              ) : (
+                character.name.charAt(0)
+              )}
+            </div>
+            <p className="font-medium text-white truncate">{character.name}</p>
           </button>
         ))}
       </div>

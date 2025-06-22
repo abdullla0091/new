@@ -12,8 +12,8 @@ export default function FeatureCard({ icon, title, description }: FeatureCardPro
       <div className="bg-indigo-900/60 rounded-full w-16 h-16 flex items-center justify-center mb-6 mx-auto shadow-[0_0_20px_rgba(139,92,246,0.2)]">
         {icon}
       </div>
-      <h3 className="font-display text-xl font-semibold mb-3 text-center tracking-tight">{title}</h3>
-      <p className="font-sans text-gray-300 text-center">{description}</p>
+      <h3 className="text-xl font-semibold mb-3 text-center">{title}</h3>
+      <p className="text-gray-300 text-center">{description}</p>
     </div>
   )
 } 

@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import LanguageToggle from '@/components/language-toggle';
-import { MessageSquare, LogIn, HomeIcon, Menu, X } from 'lucide-react';
+import { LogIn, HomeIcon, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 export default function ModernNavbar() {
   const { t, language } = useLanguage();
@@ -104,7 +105,7 @@ export default function ModernNavbar() {
   return (
     <header 
       className={`modern-navbar w-full py-4 px-6 md:px-8 fixed top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'scrolled' : 'bg-transparent'
+        scrolled ? 'bg-indigo-950/90 backdrop-blur-md shadow-[0_4px_30px_rgba(139,92,246,0.2)]' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -115,22 +116,23 @@ export default function ModernNavbar() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="relative">
-            <MessageSquare className="h-6 w-6 text-purple-400 absolute" />
-            <motion.div 
-              className="h-6 w-6 bg-purple-500/30 rounded-md"
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 5, 0, -5, 0],
-              }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
+          <div className="relative h-14 w-14 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-2xl">
+              N
+            </div>
+            <Image 
+              src="/images/logo.png" 
+              alt="ChatKurd Logo"
+              width={56}
+              height={56}
+              className="object-contain relative z-10"
+              onError={(e) => {
+                // Hide the image on error
+                e.currentTarget.style.display = 'none';
               }}
             />
           </div>
-          <span className="font-display font-bold text-xl tracking-tighter">CharacterChat</span>
+          <span className={`font-display font-bold text-xl tracking-tighter ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>Nestro Chat</span>
         </motion.div>
 
         {/* Desktop Navigation */}
@@ -148,7 +150,7 @@ export default function ModernNavbar() {
                 onClick={(e) => handleNavClick(e, link.href)}
                 className={`modern-navbar-link text-white/90 hover:text-white ${
                   activeSection === link.href.replace('#', '') ? 'active' : ''
-                }`}
+                } ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -174,13 +176,15 @@ export default function ModernNavbar() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <Link href="/home">
+            <Link href="/home" passHref>
               <Button
                 variant="ghost"
-                className="nav-button-hover text-white hover:bg-white/10 font-medium"
+                className={`nav-button-hover text-white hover:bg-white/10 font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
+                style={{ unicodeBidi: 'plaintext' }}
+                onClick={() => window.location.href = '/home'}
               >
-                <HomeIcon className="h-4 w-4 mr-2" />
-                {t("dashboard")}
+                <HomeIcon className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                <span>{t("dashboard")}</span>
               </Button>
             </Link>
           </motion.div>
@@ -190,13 +194,15 @@ export default function ModernNavbar() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Link href="/auth/signin">
+            <Link href="/auth/signin" passHref>
               <Button
                 variant="outline"
-                className="nav-button-hover border-purple-400 text-purple-300 hover:bg-purple-500 hover:text-white transition-colors font-medium"
+                className={`nav-button-hover border-purple-400 text-purple-300 hover:bg-purple-500 hover:text-white transition-colors font-medium ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
+                style={{ unicodeBidi: 'plaintext' }}
+                onClick={() => window.location.href = '/auth/signin'}
               >
-                <LogIn className="h-4 w-4 mr-2" />
-                {t("signIn")}
+                <LogIn className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                <span>{t("signIn")}</span>
               </Button>
             </Link>
           </motion.div>
@@ -218,7 +224,7 @@ export default function ModernNavbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="md:hidden absolute top-full left-0 right-0 bg-indigo-950/95 backdrop-blur-lg border-b border-purple-500/20"
+            className={`md:hidden absolute top-full left-0 right-0 bg-indigo-950/95 backdrop-blur-lg border-b border-purple-500/20 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -231,28 +237,31 @@ export default function ModernNavbar() {
                   href={link.href}
                   className={`text-white py-2 border-b border-purple-800/30 ${
                     activeSection === link.href.replace('#', '') ? 'border-purple-400' : ''
-                  }`}
+                  } ${isKurdish ? 'kurdish use-local-kurdish text-right' : ''}`}
                   onClick={(e) => handleNavClick(e, link.href)}
+                  style={{ unicodeBidi: 'plaintext' }}
                 >
                   {link.label}
                 </a>
               ))}
               <div className="flex flex-col gap-4 mt-4">
-                <Link href="/home" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-indigo-800/50 text-white hover:bg-indigo-700">
-                    <HomeIcon className="h-4 w-4 mr-2" />
-                    {t("dashboard")}
-                  </Button>
-                </Link>
-                <Link href="/auth/signin" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-purple-500 text-purple-300">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {t("signIn")}
-                  </Button>
-                </Link>
-                <div className="flex justify-center mt-2">
-                  <LanguageToggle />
-                </div>
+                <Button 
+                  className={`w-full bg-indigo-800/50 text-white hover:bg-indigo-700 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`} 
+                  style={{ unicodeBidi: 'plaintext' }}
+                  onClick={() => window.location.href = '/home'}
+                >
+                  <HomeIcon className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                  <span>{t("dashboard")}</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className={`w-full border-purple-400 text-purple-300 hover:bg-purple-500 hover:text-white ${isKurdish ? 'kurdish use-local-kurdish' : ''}`} 
+                  style={{ unicodeBidi: 'plaintext' }}
+                  onClick={() => window.location.href = '/auth/signin'}
+                >
+                  <LogIn className={`h-4 w-4 ${isKurdish ? 'ml-2' : 'mr-2'}`} />
+                  <span>{t("signIn")}</span>
+                </Button>
               </div>
             </div>
           </motion.div>
