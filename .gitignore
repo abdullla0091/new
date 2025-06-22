@@ -37,3 +37,14 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# EAS
+.expo/
+dist/
+android/
+ios/
+
+# Temporary files
+temp/
+*.tmp
+*.temp
