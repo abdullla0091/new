@@ -2,23 +2,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap');
-/* Import professional fonts for English content */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-/* Import theme styles */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Local Kurdish font from project folder - fixed absolute path with improved loading strategy */
+/* Local Kurdish font from project folder */
 @font-face {
   font-family: 'NizarBukra';
-  src: url('/kurdish-font/NizarBukraRegular.ttf') format('truetype');
+  src: url('/kurdish-font/NizarBukraRegular.ttf') format('truetype'),
+       url('../kurdish-font/NizarBukraRegular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-  font-feature-settings: "kern", "liga", "calt";
 }
 
 @layer base {
@@ -27,61 +23,35 @@
   }
 
   :root {
-    /* Purple theme colors */
-    --primary: 271 80% 55%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    
-    --background: 271 91% 10%;
-    --foreground: 224 71% 95%;
-    
-    --card: 271 91% 12%;
-    --card-foreground: 224 71% 95%;
-    
-    --popover: 271 91% 12%;
-    --popover-foreground: 224 71% 95%;
-    
-    --secondary: 271 100% 20%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 223 47% 11%;
-    --muted-foreground: 224 71% 80%;
-    
-    --accent: 271 100% 20%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 271 47% 21%;
-    --input: 271 47% 21%;
-    --ring: 271 80% 55%;
-    
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
     --radius: 0.5rem;
-
-    /* Chat specific colors - dark purple theme */
-    --chat-bg-gradient-from: 271 87% 15%;
-    --chat-bg-gradient-to: 271 91% 17%;
-    --message-bg-user: linear-gradient(to bottom right, hsl(271, 100%, 55%), hsl(245, 83%, 53%));
-    --message-bg-bot: hsla(271, 87%, 20%, 0.4);
-    --input-bg: hsla(271, 91%, 17%, 0.9);
-    --input-border: hsla(271, 100%, 80%, 0.2);
-    --header-bg: hsla(271, 91%, 17%, 0.9);
-
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 34, 10, 50;
-    --background-end-rgb: 20, 5, 30;
-    --border-color: #4b216b;
-    --card-bg: #30124a;
-    --primary-color: #a855f7;
-    --primary-hover: #9333ea;
-    
-    /* Chat theme variables */
-    --chat-bg: #30124a;
-    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
-    --message-bot-bg: #3c1a5b;
-    --chat-input-bg: #3c1a5b;
-    --chat-text-light: #f8fafc;
-    --chat-text-dark: #f8fafc;
 
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 248, 249, 250;
@@ -90,164 +60,47 @@
     --card-bg: #ffffff;
     --primary-color: #3b82f6;
     --primary-hover: #2563eb;
-    --font-sans: Space Grotesk, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
-    --font-display: Syne, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-    --font-kurdish: 'NizarBukra', 'Vazirmatn', 'Noto Sans Arabic', 'Amiri', sans-serif;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --font-kurdish: 'NizarBukra', 'Vazirmatn', 'Amiri', 'Noto Sans Arabic', sans-serif;
     --muted-foreground-rgb: 100, 116, 139;
-
-    /* Safe area insets */
-    --safe-area-top: env(safe-area-inset-top, 0px);
-    --safe-area-right: env(safe-area-inset-right, 0px);
-    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-area-left: env(safe-area-inset-left, 0px);
-
-    /* Chat theme variables */
-    --chat-bg: #f8fafc;
-    --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
-    --message-bot-bg: #e2e8f0;
-    --chat-input-bg: #ffffff;
-    --chat-text-light: #f8fafc;
-    --chat-text-dark: #0f172a;
-  }
-
-  .light {
-    --background: 224 71% 98%;
-    --foreground: 224 71% 4%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    
-    --primary: 271 80% 55%;
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 227 73% 94%;
-    --secondary-foreground: 271 80% 55%;
-    
-    --muted: 223 47% 11%;
-    --muted-foreground: 224 71% 45%;
-    
-    --accent: 224 71% 90%;
-    --accent-foreground: 271 80% 55%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 271 80% 55%;
-
-    /* Chat specific colors - light theme */
-    --chat-bg-gradient-from: 224 71% 98%;
-    --chat-bg-gradient-to: 227 73% 94%;
-    --message-bg-user: linear-gradient(to bottom right, hsl(271, 80%, 65%), hsl(221, 83%, 65%));
-    --message-bg-bot: hsla(227, 73%, 85%, 0.6);
-    --input-bg: hsla(0, 0%, 100%, 0.9);
-    --input-border: hsla(271, 100%, 60%, 0.2);
-    --header-bg: hsla(0, 0%, 100%, 0.9);
-
-    --foreground-rgb: 0, 0, 0;
-    --background-start-rgb: 248, 249, 250;
-    --background-end-rgb: 255, 255, 255;
-    --border-color: #e5e7eb;
-    --card-bg: #ffffff;
-    --primary-color: #a855f7;
-    --primary-hover: #9333ea;
-
-    /* Chat theme variables for light mode */
-    --chat-bg: #f8fafc;
-    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
-    --message-bot-bg: #e2e8f0;
-    --chat-input-bg: #ffffff;
-    --chat-text-light: #f8fafc;
-    --chat-text-dark: #0f172a;
   }
 
   .dark {
-    --background: 271 91% 10%;
-    --foreground: 224 71% 95%;
-    
-    --card: 271 91% 12%;
-    --card-foreground: 224 71% 95%;
-    
-    --popover: 271 91% 12%;
-    --popover-foreground: 224 71% 95%;
-    
-    --primary: 271 80% 55%;
-    --primary-foreground: 0 0% 98%;
-    
-    --secondary: 271 100% 20%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 223 47% 11%;
-    --muted-foreground: 224 71% 80%;
-    
-    --accent: 271 100% 20%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 271 47% 21%;
-    --input: 271 47% 21%;
-    --ring: 271 80% 55%;
-    
-    /* Chat specific colors - dark theme */
-    --chat-bg-gradient-from: 271 87% 15%;
-    --chat-bg-gradient-to: 271 91% 17%;
-    --message-bg-user: linear-gradient(to bottom right, hsl(271, 100%, 55%), hsl(245, 83%, 53%));
-    --message-bg-bot: hsla(271, 87%, 20%, 0.4);
-    --input-bg: hsla(271, 91%, 17%, 0.9);
-    --input-border: hsla(271, 100%, 80%, 0.2);
-    --header-bg: hsla(271, 91%, 17%, 0.9);
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
 
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 34, 10, 50;
-    --background-end-rgb: 20, 5, 30;
-    --border-color: #4b216b;
-    --card-bg: #30124a;
-    --primary-color: #a855f7;
-    --primary-hover: #9333ea;
-
-    /* Chat theme variables for dark mode */
-    --chat-bg: #30124a;
-    --message-user-bg: linear-gradient(to bottom right, #a855f7, #6366f1);
-    --message-bot-bg: #3c1a5b;
-    --chat-input-bg: #3c1a5b;
-    --chat-text-light: #f8fafc;
-    --chat-text-dark: #f8fafc;
-  }
-
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Add safe area utility classes */
-  .pt-safe {
-    padding-top: var(--safe-area-top);
-  }
-  .pr-safe {
-    padding-right: var(--safe-area-right);
-  }
-  .pb-safe {
-    padding-bottom: var(--safe-area-bottom);
-  }
-  .pl-safe {
-    padding-left: var(--safe-area-left);
-  }
-  .px-safe {
-    padding-left: var(--safe-area-left);
-    padding-right: var(--safe-area-right);
-  }
-  .py-safe {
-    padding-top: var(--safe-area-top);
-    padding-bottom: var(--safe-area-bottom);
+    --background-start-rgb: 10, 15, 25;
+    --background-end-rgb: 0, 0, 0;
+    --border-color: #1e293b;
+    --card-bg: #0f172a;
+    --muted-foreground-rgb: 148, 163, 184;
   }
 }
 
@@ -268,7 +121,6 @@ html, body {
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
-  font-family: var(--font-sans);
 }
 
 a {
@@ -305,9 +157,6 @@ input:focus, button:focus {
   line-height: 1.8; /* Improved line height for Kurdish text */
   letter-spacing: 0.01em; /* Slight letter spacing adjustment for readability */
   font-size: 1.05em; /* Slightly larger font size for better readability */
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* When the app is in Kurdish language mode, apply RTL direction to the entire app */
@@ -316,14 +165,6 @@ html[lang="ku"] {
 }
 
 html[lang="ku"] body {
-  font-family: var(--font-kurdish);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Apply Kurdish font to all text elements through inheritance when the root has these classes */
-html.use-local-kurdish * {
   font-family: var(--font-kurdish);
 }
 
@@ -335,30 +176,8 @@ html[lang="ku"] a svg {
 }
 
 html[lang="ku"] .ml-2 {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-html[lang="ku"] .mr-2 {
-  margin-right: 0 !important;
-  margin-left: 0.5rem !important;
-}
-
-/* Fix icon placement in RTL mode */
-[dir="rtl"] .mr-2 {
-  margin-right: 0 !important;
-  margin-left: 0.5rem !important;
-}
-
-[dir="rtl"] .ml-2 {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* RTL button and link icons */
-[dir="rtl"] button svg,
-[dir="rtl"] a svg {
-  transform: scaleX(-1);
+  margin-left: 0;
+  margin-right: 0.5rem;
 }
 
 /* Kurdish text beautification */
@@ -434,7 +253,7 @@ html[lang="ku"] .use-amiri {
   }
   
   /* Active link indicator */
-  .fixed.top-0 nav a[class*="bg-white"]::after {
+  .fixed.top-0 nav a.bg-white\/10::after {
     content: '';
     position: absolute;
     bottom: -4px;
@@ -479,328 +298,4 @@ html[lang="ku"] .fixed.top-0 nav a {
 
 html[lang="ku"] .fixed.top-0 .flex.items-center.gap-4 {
   flex-direction: row-reverse;
-}
-
-/* Modern navbar animations */
-.modern-navbar {
-  position: relative;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modern-navbar.scrolled {
-  background-color: rgba(49, 46, 129, 0.75);
-  box-shadow: 0 10px 30px -10px rgba(20, 20, 50, 0.2);
-}
-
-.modern-navbar-link {
-  position: relative;
-  padding: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.modern-navbar-link::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(to right, #c084fc, #a855f7);
-  transition: width 0.3s ease;
-  border-radius: 2px;
-}
-
-.modern-navbar-link:hover::after,
-.modern-navbar-link.active::after {
-  width: 100%;
-}
-
-.nav-button-hover {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.nav-button-hover::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s ease;
-}
-
-.nav-button-hover:hover::before {
-  left: 100%;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  letter-spacing: -0.03em;
-}
-
-/* RTL and Kurdish message styling */
-html[lang="ku"] .flex-row-reverse {
-  flex-direction: row-reverse;
-}
-
-/* Special handling for mixed language messages */
-[dir="rtl"] {
-  text-align: right;
-}
-
-[dir="ltr"] {
-  text-align: left;
-}
-
-/* Improved Kurdish message bubbles */
-html[lang="ku"] .userMessage {
-  margin-left: auto;
-  margin-right: 0;
-}
-
-html[lang="ku"] .modelMessage {
-  margin-right: auto;
-  margin-left: 0;
-}
-
-/* Improve message text readability */
-.kurdish {
-  font-family: var(--font-kurdish);
-  direction: rtl;
-  line-height: 1.8;
-  letter-spacing: 0.01em;
-  font-size: 1.05em;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Fix the input padding for RTL mode */
-html[lang="ku"] textarea.kurdish {
-  padding-right: 1rem !important;
-  padding-left: 5.5rem !important;
-}
-
-/* Kurdish message bubble spacing adjustments */
-html[lang="ku"] [dir="rtl"].relative.group {
-  margin-left: 3rem !important;
-  margin-right: 0 !important;
-}
-
-html[lang="ku"] [dir="ltr"].relative.group {
-  margin-right: 3rem !important;
-  margin-left: 0 !important;
-}
-
-/* Ensure correct alignment in message bubbles */
-[dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] div {
-  text-align: right;
-  unicode-bidi: bidi-override;
-}
-
-/* Fix dropdown menus in RTL mode */
-html[lang="ku"] .relative > [data-radix-popper-content-wrapper] {
-  right: auto !important;
-  left: 0 !important;
-}
-
-/* Add padding to the bottom of the main content area to account for the TabBar */
-.main-content:not([data-page="chat"]) {
-  padding-bottom: 60px; /* Height of the TabBar */
-}
-
-.page-content:not([data-page="chat"]) {
-  padding-bottom: 60px; /* Height of the TabBar */
-}
-
-/* Adjust padding for mobile keyboard appearance */
-@media (max-width: 640px) {
-  .keyboard-open {
-    margin-bottom: 260px; /* Approximate keyboard height */
-  }
-}
-
-/* Fix RTL text direction issues with mixed language content */
-[dir="rtl"] .ltr,
-[dir="rtl"] .english-content {
-  direction: ltr;
-  unicode-bidi: embed;
-  display: inline-block;
-}
-
-/* Special handling for English content inside Kurdish text */
-[dir="rtl"] span.en,
-[dir="rtl"] .en {
-  direction: ltr;
-  unicode-bidi: embed;
-  display: inline-block;
-}
-
-/* Fix character descriptions that contain English words */
-[dir="rtl"] p {
-  unicode-bidi: plaintext;
-}
-
-/* Ensure numbers display correctly in RTL mode */
-[dir="rtl"] .counter-effect {
-  direction: ltr;
-  unicode-bidi: embed;
-  display: inline-block;
-}
-
-/* RTL specific fixes - IMPROVED BIDIRECTIONAL TEXT HANDLING */
-[dir="rtl"] {
-  /* Override for all elements inside rtl */
-  unicode-bidi: isolate;
-}
-
-/* Fix text direction */
-[dir="rtl"] p, 
-[dir="rtl"] h1, 
-[dir="rtl"] h2, 
-[dir="rtl"] h3, 
-[dir="rtl"] h4, 
-[dir="rtl"] h5, 
-[dir="rtl"] h6, 
-[dir="rtl"] span, 
-[dir="rtl"] div.text-content,
-[dir="rtl"] a,
-[dir="rtl"] button {
-  text-align: right;
-  /* Use bidi-override to ensure text renders in the correct direction */
-  unicode-bidi: isolate;
-}
-
-/* Reset the plaintext property for paragraphs */
-[dir="rtl"] p {
-  unicode-bidi: plaintext !important;
-}
-
-/* For elements with English content that should not be reversed */
-[dir="rtl"] .en,
-[dir="rtl"] .english,
-[dir="rtl"] .ltr,
-[dir="rtl"] .no-rtl,
-[dir="rtl"] .latin {
-  direction: ltr;
-  unicode-bidi: embed;
-  display: inline-block;
-  text-align: left;
-}
-
-/* For any text that contains numbers or mixed content */
-[dir="rtl"] .counter-effect,
-[dir="rtl"] .num,
-[dir="rtl"] .number,
-[dir="rtl"] .digit {
-  direction: ltr;
-  unicode-bidi: isolate-override;
-  display: inline-block;
-}
-
-/* Fix bidirectional button text */
-[dir="rtl"] button span,
-[dir="rtl"] a span {
-  display: inline-block;
-  unicode-bidi: plaintext;
-}
-
-/* Remove transforming SVG icons in RTL */
-[dir="rtl"] svg {
-  transform: none;
-}
-
-/* Explicitly set RTL-aware icons */
-[dir="rtl"] .icon-rtl-aware {
-  transform: scaleX(-1);
-}
-
-/* Fixed for known directional icons */
-[dir="rtl"] .arrow-right,
-[dir="rtl"] .arrow-left {
-  transform: scaleX(-1);
-}
-
-/* Chat theme styles */
-[data-chat-theme="light"] {
-  --chat-bg: #f8fafc;
-  --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
-  --message-bot-bg: #e2e8f0;
-  --chat-input-bg: #ffffff;
-  --chat-text-light: #f8fafc;
-  --chat-text-dark: #0f172a;
-}
-
-[data-chat-theme="dark"] {
-  --chat-bg: #0f172a;
-  --message-user-bg: linear-gradient(to bottom right, #8b5cf6, #3b82f6);
-  --message-bot-bg: #1e293b;
-  --chat-input-bg: #1e293b;
-  --chat-text-light: #f8fafc;
-  --chat-text-dark: #0f172a;
-}
-
-[data-chat-theme="sunset"] {
-  --chat-bg: #FFECD6;
-  --message-user-bg: linear-gradient(to bottom right, #f97316, #ef4444);
-  --message-bot-bg: #FFF5E9;
-  --chat-input-bg: #ffffff;
-  --chat-text-light: #ffffff;
-  --chat-text-dark: #7c2d12;
-}
-
-[data-chat-theme="forest"] {
-  --chat-bg: #ecfdf5;
-  --message-user-bg: linear-gradient(to bottom right, #10b981, #059669);
-  --message-bot-bg: #f1f5f9;
-  --chat-input-bg: #ffffff;
-  --chat-text-light: #ffffff;
-  --chat-text-dark: #064e3b;
-}
-
-[data-chat-theme="kurdish"] {
-  --chat-bg: #fcfbf4;
-  --message-user-bg: linear-gradient(to bottom right, #ca8a04, #facc15);
-  --message-bot-bg: #f8fafc;
-  --chat-input-bg: #ffffff;
-  --chat-text-light: #ffffff;
-  --chat-text-dark: #0f172a;
-}
-
-/* Apply chat themes to chat components */
-.chat-container {
-  background-color: var(--chat-bg);
-}
-
-.user-message {
-  background: var(--message-user-bg);
-  color: var(--chat-text-light);
-}
-
-.bot-message {
-  background: var(--message-bot-bg);
-  color: var(--chat-text-dark);
-}
-
-.chat-input {
-  background: var(--chat-input-bg);
-}
-
-/* Add landing page specific styles */
-.landing-page-main {
-  background: linear-gradient(to bottom, #361371, #541a9c, #361371);
-}
-
-.main-bg {
-  background-color: hsl(var(--background));
-}
-
-.gradient-bg {
-  background: linear-gradient(to bottom, hsl(271, 91%, 10%), hsl(271, 91%, 7%));
 }

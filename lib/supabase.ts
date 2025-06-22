@@ -27,32 +27,15 @@ export const signInWithEmail = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    });
+    })
     
-    if (error) throw error;
-    
-    // After successful sign-in, verify the user has a record in the users table
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single();
-    
-    if (userError && userError.code === 'PGRST116') {
-      // User not found in our users table - create them
-      await supabase.from('users').insert({
-        email,
-        email_confirmed: false,
-        created_at: new Date().toISOString()
-      });
-    }
-    
-    return data;
+    if (error) throw error
+    return data
   } catch (error) {
-    console.error('Login error:', error);
-    throw error;
+    console.error('Login error:', error)
+    throw error
   }
-};
+}
 
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut()

@@ -7,22 +7,12 @@ import { getAllCharacters } from "@/lib/custom-characters"; // Add import for cu
 import CharacterCard from "@/components/character-card"; // Use alias path
 import { Input } from "@/components/ui/input"; // Use Shadcn Input
 import { Button } from "@/components/ui/button"; // Use Shadcn Button
-import { Search, Filter, ChevronRight, SlidersHorizontal, Sparkles, Plus, Trophy, Star, Fire, X } from "lucide-react";
+import { Search, Filter, ChevronRight, SlidersHorizontal, Sparkles, Plus, Trophy, Star, Fire } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCharacterImage, getDummyCharacterImage } from "@/lib/image-storage";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLanguage } from "@/app/i18n/LanguageContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
 
 // Generate a background gradient based on the character name
 function getAvatarGradient(name: string): string {
@@ -51,8 +41,6 @@ export default function ExplorePage() {
   const [charactersForCards, setCharactersForCards] = useState<Character[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'default' | 'custom'>('all');
   const [loading, setLoading] = useState(true);
-  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-  const { language, t, isKurdish } = useLanguage();
 
   // Initialize from URL parameters if present
   useEffect(() => {
@@ -163,6 +151,13 @@ export default function ExplorePage() {
     return filtered;
   }, [searchTerm, selectedTag, charactersForCards, sortBy, activeTab]);
 
+  // Get featured characters (top 5 rated)
+  const featuredCharacters = useMemo(() => {
+    return [...charactersForCards]
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, 5);
+  }, [charactersForCards]);
+
   // Count of custom characters
   const customCharCount = useMemo(() => {
     return charactersForCards.filter(char => (char as any).isCustom).length;
@@ -177,158 +172,121 @@ export default function ExplorePage() {
   };
 
   const handleCharacterClick = (id: string) => {
-    // Use direct window.location navigation instead of router.push
-    window.location.href = `/chat/${id}`;
+    router.push(`/chat/${id}`);
   };
 
-  const applyFilters = () => {
-    // We explicitly set state values here to ensure filters are applied
-    // This isn't strictly necessary since the state is already updated when
-    // user interacts with filters, but it's good to be explicit
-    setActiveTab(activeTab);
-    setSortBy(sortBy);
-    setSelectedTag(selectedTag);
-    setFilterDialogOpen(false);
+  const handleFeaturedClick = (id: string) => {
+    router.push(`/profile/${id}`);
   };
 
   return (
-    <div className={`container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10 ${isKurdish ? 'kurdish' : ''}`}>
+    <div className="container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10">
       <div className="text-center mb-4">
         <span className="inline-block px-4 py-1 bg-purple-900/50 rounded-full text-purple-300 text-sm font-medium mb-4">
-          {t("explore").toUpperCase()}
+          DISCOVER
         </span>
         <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-          {t("exploreCharacters")}
+          Explore Characters
         </h1>
         <p className="text-gray-200 max-w-2xl mx-auto">
-          {t("discoverCharacters")}
+          Find the perfect AI companion to chat with from our collection of unique personalities.
         </p>
       </div>
       
-      <div className="bg-indigo-900/20 backdrop-blur-md p-6 rounded-2xl border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
-        <div className="flex justify-between items-center mb-6">
-          {/* Search Input */}
-          <div className="relative flex-grow max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-300" />
-            <Input
-              type="text"
-              placeholder={isKurdish ? "گەڕان بە ناو یان وەسف..." : "Search by name or description..."}
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className={`pl-10 bg-indigo-800/40 border-purple-500/20 placeholder:text-purple-300/70 text-white ${isKurdish ? 'text-right' : ''}`}
-            />
+      {/* Featured Characters */}
+      {!loading && featuredCharacters.length > 0 && (
+        <div className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 backdrop-blur-md p-6 rounded-2xl border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+          <div className="flex items-center mb-4">
+            <Trophy className="h-5 w-5 text-yellow-400 mr-2" />
+            <h2 className="text-xl font-bold text-white">Featured Characters</h2>
           </div>
           
-          <div className="flex items-center gap-2 ml-2">
-            <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white">
-                  <Filter className="h-4 w-4 mr-1" />
-                  {isKurdish ? "فلتەر" : "Filters"}
-                  {selectedTag && <Badge variant="secondary" className="ml-1 bg-indigo-700/70">1</Badge>}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className={`bg-indigo-900/95 backdrop-blur-xl border border-purple-500/30 text-white max-w-lg ${isKurdish ? 'kurdish' : ''}`}>
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-display">{isKurdish ? "فلتەری کەسایەتییەکان" : "Filter Characters"}</DialogTitle>
-                  <DialogDescription className="text-purple-200">
-                    {isKurdish ? "گەڕانی کەسایەتی خۆت بە ئارەزوومەند بکە بەم فلتەرانە." : "Customize your character search with these filters."}
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="space-y-6 py-4">
-                  {/* Character Type Tabs */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">{isKurdish ? "جۆری کەسایەتی" : "Character Type"}</h3>
-                    <Tabs defaultValue={activeTab} className="w-full" onValueChange={(value) => setActiveTab(value as any)}>
-                      <TabsList className="bg-indigo-800/40 border border-purple-500/20 grid grid-cols-3">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">{isKurdish ? "هەموو" : "All"}</TabsTrigger>
-                        <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">{isKurdish ? "بنەڕەتی" : "Built-in"}</TabsTrigger>
-                        <TabsTrigger value="custom" className="flex items-center gap-1 data-[state=active]:bg-purple-600">
-                          {isKurdish ? "تایبەت" : "Custom"}
-                          {customCharCount > 0 && (
-                            <Badge variant="secondary" className="ml-1 bg-indigo-700/70">{customCharCount}</Badge>
-                          )}
-                        </TabsTrigger>
-                      </TabsList>
-                    </Tabs>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {featuredCharacters.map((char, index) => {
+              const characterId = char.id.toString();
+              const avatarGradient = getAvatarGradient(char.name);
+              let profileImage = null;
+              
+              // Try to get character image
+              const savedImage = getCharacterImage(characterId);
+              if (savedImage) {
+                profileImage = savedImage;
+              } else if (char.avatar) {
+                profileImage = char.avatar;
+              } else {
+                profileImage = getDummyCharacterImage(characterId);
+              }
+              
+              return (
+                <div 
+                  key={char.id}
+                  className="flex flex-col items-center p-3 bg-indigo-900/40 rounded-xl border border-purple-500/20 hover:border-purple-500/40 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                  onClick={() => handleFeaturedClick(characterId)}
+                >
+                  <div className={`flex-shrink-0 relative w-16 h-16 rounded-full bg-gradient-to-br ${avatarGradient} p-0.5`}>
+                    <Avatar className="w-full h-full">
+                      {profileImage ? (
+                        <AvatarImage src={profileImage} alt={char.name} />
+                      ) : (
+                        <AvatarFallback className="bg-indigo-800 text-white">
+                          {char.name.charAt(0)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    {index === 0 && (
+                      <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-0.5">
+                        <Star className="h-3 w-3 text-white fill-white" />
+                      </div>
+                    )}
                   </div>
-
-                  {/* Sort Options */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Sort By</h3>
-                    <select 
-                      className="w-full bg-indigo-800/40 border border-purple-500/20 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
-                    >
-                      <option value="popular">Most Popular</option>
-                      <option value="rating">Highest Rated</option>
-                      <option value="newest">Newest First</option>
-                    </select>
-                  </div>
-
-                  {/* Tag Filters */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Character Tags</h3>
-                    <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
-                      <Button
-                        variant={!selectedTag ? "default" : "outline"}
-                        size="sm"
-                        className={!selectedTag 
-                          ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                          : "bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white"
-                        }
-                        onClick={() => handleTagClick(null)}
-                      >
-                        All
-                      </Button>
-                      {allTags.map(tag => (
-                        <Button
-                          key={tag}
-                          variant={selectedTag === tag ? "default" : "outline"}
-                          size="sm"
-                          className={selectedTag === tag 
-                            ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                            : "bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white"
-                          }
-                          onClick={() => handleTagClick(tag)}
-                        >
-                          {tag}
-                        </Button>
-                      ))}
-                    </div>
+                  <h3 className="mt-2 font-medium text-sm text-white text-center">{char.name}</h3>
+                  <div className="flex items-center mt-1">
+                    <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                    <span className="text-xs ml-1 text-yellow-100">{char.rating}</span>
                   </div>
                 </div>
-
-                <div className="flex justify-between pt-2">
-                  <Button 
-                    variant="outline" 
-                    className="border-purple-500/20 hover:bg-purple-500/10 text-white"
-                    onClick={() => {
-                      setSelectedTag(null);
-                      setActiveTab('all');
-                      setSortBy('popular');
-                    }}
-                  >
-                    Reset Filters
-                  </Button>
-                  <DialogClose asChild>
-                    <Button 
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                      onClick={applyFilters}
-                    >
-                      Apply Filters
-                    </Button>
-                  </DialogClose>
-                </div>
-              </DialogContent>
-            </Dialog>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      
+      <div className="bg-indigo-900/20 backdrop-blur-md p-6 rounded-2xl border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setActiveTab(value as any)}>
+              <TabsList className="bg-indigo-800/40 border border-purple-500/20 grid grid-cols-3">
+                <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">All Characters</TabsTrigger>
+                <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">Built-in</TabsTrigger>
+                <TabsTrigger value="custom" className="flex items-center gap-1 data-[state=active]:bg-purple-600">
+                  Custom
+                  {customCharCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-indigo-700/70">{customCharCount}</Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="flex items-center bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30">
+              <SlidersHorizontal className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Sort by:</span> 
+              <select 
+                className="ml-1 bg-transparent focus:outline-none text-white"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+              >
+                <option value="popular">Popular</option>
+                <option value="rating">Highest Rated</option>
+                <option value="newest">Newest</option>
+              </select>
+            </Button>
             
             <Button
               variant="default"
               size="sm" 
-              className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)] text-white"
+              className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
               onClick={() => router.push('/custom-characters')}
             >
               <Plus className="h-4 w-4" />
@@ -337,37 +295,101 @@ export default function ExplorePage() {
           </div>
         </div>
 
+        {/* Search Input */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-300" />
+          <Input
+            type="text"
+            placeholder="Search by name or description..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="pl-10 bg-indigo-800/40 border-purple-500/20 placeholder:text-purple-300/70 text-white"
+          />
+        </div>
+
+        {/* Tag Filters */}
+        <div className="overflow-x-auto pb-4 mb-4">
+          <div className="flex flex-nowrap gap-2 w-max">
+            <Button
+              variant={!selectedTag ? "default" : "outline"}
+              size="sm"
+              className={!selectedTag 
+                ? "bg-purple-600 hover:bg-purple-700" 
+                : "bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white"
+              }
+              onClick={() => handleTagClick(null)}
+            >
+              All
+            </Button>
+            {allTags.map(tag => (
+              <Button
+                key={tag}
+                variant={selectedTag === tag ? "default" : "outline"}
+                size="sm"
+                className={selectedTag === tag 
+                  ? "bg-purple-600 hover:bg-purple-700" 
+                  : "bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white"
+                }
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         {/* Character Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {loading ? (
-            // Loading skeletons
-            Array.from({ length: 8 }).map((_, i) => (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
-                <div className="flex flex-col items-center animate-pulse">
-                  <div className="rounded-full bg-indigo-700/50 h-16 w-16 mb-3"></div>
-                  <div className="h-4 bg-indigo-700/50 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-indigo-700/50 rounded w-1/2 mb-2"></div>
-                  <div className="h-2 bg-indigo-700/50 rounded w-5/6 mb-1"></div>
-                  <div className="h-2 bg-indigo-700/50 rounded w-full"></div>
+                <div className="flex flex-col items-center">
+                  <Skeleton className="h-16 w-16 rounded-full mb-3" />
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-3 w-16 mb-2" />
+                  <Skeleton className="h-3 w-full mb-1" />
+                  <Skeleton className="h-3 w-5/6" />
                 </div>
               </div>
-            ))
-          ) : filteredCharacters.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
-              <Search className="h-12 w-12 mb-4 opacity-50" />
-              <h3 className="text-xl font-medium mb-2">No characters found</h3>
-              <p className="text-sm text-center max-w-md">
-                Try adjusting your filters or search term to find what you're looking for.
-              </p>
-            </div>
-          ) : (
-            filteredCharacters.map((character) => (
-              <div key={character.id} onClick={() => handleCharacterClick(character.id)}>
-                <CharacterCard character={character} />
+            ))}
+          </div>
+        ) : filteredCharacters.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredCharacters.map(char => (
+              <div 
+                key={char.id} 
+                className="cursor-pointer transform hover:scale-[1.02] transition-transform"
+              >
+                <CharacterCard character={char} />
+                
+                {/* Custom character badge */}
+                {(char as any).isCustom && (
+                  <div className="mt-1 flex justify-center">
+                    <Badge variant="outline" className="flex items-center gap-1 text-xs bg-indigo-800/40 border-purple-500/20 text-purple-300">
+                      <Sparkles className="h-3 w-3" />
+                      Custom
+                    </Badge>
+                  </div>
+                )}
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 border border-purple-500/20 rounded-xl bg-indigo-900/30 backdrop-blur-md">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 text-purple-400 opacity-50" />
+            <h3 className="text-xl font-semibold mb-2 text-purple-200">No Characters Found</h3>
+            <p className="text-gray-300 max-w-md mx-auto mb-6">
+              Try adjusting your search or filters to find characters, or create your own custom character.
+            </p>
+            <Button 
+              onClick={() => router.push('/custom-characters')}
+              className="bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)] mx-auto flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create Your Own Character
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

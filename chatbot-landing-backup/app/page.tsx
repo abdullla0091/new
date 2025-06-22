@@ -1,58 +1,19 @@
 import Link from "next/link"
-import { ArrowRight, Zap, Shield, Sparkles } from "lucide-react"
+import { ArrowRight, MessageSquare, Zap, Shield, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import FeatureCard from "./components/feature-card"
 import CharacterShowcase from "./components/character-showcase"
 import SimplifiedBackground from "./components/simplified-background"
 import CharacterEyes from "./components/character-eyes"
-import Image from "next/image"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-800 to-indigo-900 text-white overflow-hidden">
-      {/* Add animation keyframes */}
-      <style jsx global>{`
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.2;
-          }
-          100% {
-            transform: scale(1.2);
-            opacity: 0.4;
-          }
-        }
-        @keyframes float {
-          0% {
-            transform: translateY(0) translateX(0);
-          }
-          25% {
-            transform: translateY(-20px) translateX(10px);
-          }
-          50% {
-            transform: translateY(0) translateX(20px);
-          }
-          75% {
-            transform: translateY(20px) translateX(10px);
-          }
-          100% {
-            transform: translateY(0) translateX(0);
-          }
-        }
-      `}</style>
-
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 text-white overflow-hidden">
       {/* Header */}
       <header className="container mx-auto py-6 px-4 flex justify-between items-center relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="relative h-12 w-12">
-            <Image 
-              src="/images/logo.png" 
-              alt="Nestro Chat Logo"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <span className="font-bold text-xl">Nestro Chat</span>
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-6 w-6 text-purple-400" />
+          <span className="font-bold text-xl">CharacterChat</span>
         </div>
         <nav className="hidden md:flex gap-8">
           <Link href="#characters" className="hover:text-purple-400 transition-colors">
@@ -91,46 +52,26 @@ export default function Home() {
         </Button>
       </header>
 
-      {/* Hero Section with Simplified Background - increased height and moved content up */}
-      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Section with Simplified Background */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         {/* Option 1: Simplified Background */}
         <SimplifiedBackground />
 
-        {/* Add a more vibrant gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-900/50 via-purple-700/30 to-indigo-800/60 z-[1]"></div>
-        
-        {/* Add animated particles for more vibrance */}
-        <div className="absolute inset-0 z-[1] overflow-hidden">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-purple-500/20"
-              style={{
-                width: `${Math.random() * 150 + 50}px`,
-                height: `${Math.random() * 150 + 50}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `pulse ${Math.random() * 8 + 5}s infinite alternate`,
-                animationDelay: `${Math.random() * 5}s`,
-              }}
-            ></div>
-          ))}
-        </div>
+        {/* Add a subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/70 via-transparent to-indigo-950/70 z-[1]"></div>
 
-        <div className="container mx-auto px-4 py-20 relative z-10 text-center mt-[-80px]">
+        <div className="container mx-auto px-4 py-20 relative z-10 text-center">
           <div className="bg-indigo-900/20 backdrop-blur-md p-8 md:p-12 rounded-3xl max-w-4xl mx-auto border border-purple-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
             <div className="relative h-24 md:h-32 mb-4">
               <CharacterEyes />
             </div>
-            <div className="max-w-2xl mx-auto">
-              <h1 className="text-4xl md:text-[4.5rem] leading-tight font-bold mb-6">
-                Chat with <span className="text-purple-400">Unique Characters</span>, Not Just Another Bot
-              </h1>
-              <p className="text-lg md:text-xl text-gray-200 mb-8">
-                Experience conversations with personality. Our AI-powered characters bring a new dimension to chatbot
-                interactions.
-              </p>
-            </div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+              Chat with <span className="text-purple-400">Unique Characters</span>, Not Just Another Bot
+            </h1>
+            <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+              Experience conversations with personality. Our AI-powered characters bring a new dimension to chatbot
+              interactions.
+            </p>
             <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 rounded-lg text-lg mx-auto shadow-[0_0_20px_rgba(168,85,247,0.5)]">
               Meet Our Characters
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -163,20 +104,15 @@ export default function Home() {
       {/* Features Section */}
       <section id="features" className="relative py-20 overflow-hidden">
         {/* Add background elements */}
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-900 via-purple-800/70 to-indigo-900/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-purple-950/50 to-indigo-950"></div>
         <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-indigo-950 to-transparent"></div>
         <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-indigo-950 to-transparent"></div>
 
         {/* Add floating shapes */}
-        <div className="absolute top-1/4 left-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/4 left-10 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
         <div
-          className="absolute bottom-1/4 right-10 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-1/4 right-10 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1s" }}
-        ></div>
-        
-        {/* Add additional floating elements */}
-        <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl"
-          style={{ animation: "pulse 8s infinite alternate", animationDelay: "2s" }}
         ></div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -214,18 +150,12 @@ export default function Home() {
 
       {/* How it Works Section */}
       <section id="how-it-works" className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-indigo-900/60 backdrop-blur-md"></div>
+        <div className="absolute inset-0 bg-indigo-900/50 backdrop-blur-lg"></div>
 
         {/* Add animated gradient background */}
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-500 to-indigo-500 animate-gradient-slow"></div>
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-600 to-indigo-600 animate-gradient-slow"></div>
         </div>
-        
-        {/* Add floating orbs */}
-        <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-gradient-to-br from-pink-500/30 to-purple-500/30 blur-xl"
-          style={{ animation: "float 20s infinite ease-in-out" }}></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 rounded-full bg-gradient-to-br from-blue-500/30 to-indigo-500/30 blur-xl"
-          style={{ animation: "float 25s infinite ease-in-out reverse", animationDelay: "2s" }}></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
@@ -375,6 +305,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-indigo-950 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center gap-2 mb-6 md:mb-0">
+              <MessageSquare className="h-6 w-6 text-purple-400" />
+              <span className="font-bold text-xl">CharacterChat</span>
+            </div>
+            <div className="flex gap-8 mb-6 md:mb-0">
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                Privacy
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                Terms
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                Contact
+              </Link>
+            </div>
+            <div className="text-gray-400">© 2025 CharacterChat. All rights reserved.</div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

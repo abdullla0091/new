@@ -1,79 +1,60 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
-interface VerificationContextProps {
+type VerificationContextType = {
   sendVerificationCode: (email: string) => Promise<void>
   verifyCode: (email: string, code: string) => Promise<boolean>
   isLoading: boolean
   error: string | null
 }
 
-const VerificationContext = createContext<VerificationContextProps | undefined>(undefined)
+const VerificationContext = createContext<VerificationContextType | undefined>(undefined)
 
-export function VerificationProvider({ children }: { children: ReactNode }) {
+export function VerificationProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Function to send a verification code
   const sendVerificationCode = async (email: string) => {
     setIsLoading(true)
     setError(null)
-    
     try {
-      // Generate a 4-digit code
-      const code = Math.floor(1000 + Math.random() * 9000).toString()
-      
-      // Call API to send verification code
-      const response = await fetch('/api/auth/send-verification-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code }),
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false, // Don't create user here since we're using signUp
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       })
       
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to send verification code')
-      }
+      if (error) throw error
       
-      // In development, log the code for testing
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Verification code sent to', email, ':', code)
-      }
-      
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred')
-      throw error
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send verification code')
+      throw err
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Function to verify a code
-  const verifyCode = async (email: string, code: string) => {
+  const verifyCode = async (email: string, code: string): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
-    
     try {
-      // Call API to verify the code
-      const response = await fetch('/api/auth/confirm-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code }),
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'email'
       })
       
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to verify code')
-      }
+      if (error) throw error
       
+      // If we get here, the verification was successful
       return true
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred')
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to verify code')
       return false
     } finally {
       setIsLoading(false)
@@ -81,14 +62,12 @@ export function VerificationProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <VerificationContext.Provider
-      value={{
-        sendVerificationCode,
-        verifyCode,
-        isLoading,
-        error,
-      }}
-    >
+    <VerificationContext.Provider value={{
+      sendVerificationCode,
+      verifyCode,
+      isLoading,
+      error
+    }}>
       {children}
     </VerificationContext.Provider>
   )
@@ -96,10 +75,8 @@ export function VerificationProvider({ children }: { children: ReactNode }) {
 
 export function useVerification() {
   const context = useContext(VerificationContext)
-  
   if (context === undefined) {
     throw new Error('useVerification must be used within a VerificationProvider')
   }
-  
   return context
 } 

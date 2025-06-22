@@ -1,6 +1,7 @@
 "use client" // For client-side state and theme handling
 
 import { useState, useEffect } from "react";
+import ThemeToggle from "@/components/theme-toggle";
 import ThemeSelector from "@/components/theme-selector";
 import {
   Select,
@@ -20,17 +21,11 @@ import {
   FileText,
   ChevronRight,
   Moon,
-  Sun,
-  Paintbrush,
-  Globe,
-  Lock,
-  HelpCircle
+  Sun 
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useTheme } from "next-themes";
-import { useLanguage } from "@/app/i18n/LanguageContext";
-import { cn } from "@/lib/utils";
 
 // Reusable SettingsItem component
 function SettingsItem({
@@ -58,46 +53,6 @@ function SettingsItem({
   );
 }
 
-// Setting item component
-const SettingItem = ({ 
-  icon, 
-  title, 
-  description, 
-  path, 
-  isKurdish 
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  description: string;
-  path: string;
-  isKurdish: boolean;
-}) => {
-  const router = useRouter();
-  
-  return (
-    <button 
-      onClick={() => router.push(path)}
-      className="w-full flex items-center justify-between p-4 text-left border-b border-purple-500/20 last:border-0 hover:bg-indigo-800/30 transition-colors"
-      dir={isKurdish ? "rtl" : "ltr"}
-    >
-      <div className="flex items-center">
-        <div className={cn("text-purple-300", isKurdish ? "ml-3" : "mr-3")}>
-          {icon}
-        </div>
-        <div>
-          <p className={cn("text-base font-medium", isKurdish && "kurdish use-local-kurdish")}>
-            {title}
-          </p>
-          <p className={cn("text-xs text-purple-300 mt-1", isKurdish && "kurdish use-local-kurdish")}>
-            {description}
-          </p>
-        </div>
-      </div>
-      <ChevronRight className={cn("h-5 w-5 text-purple-300", isKurdish && "transform rotate-180")} />
-    </button>
-  );
-};
-
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -105,7 +60,6 @@ export default function SettingsPage() {
   const [language, setLanguage] = useState('en'); // Default language
   const [mounted, setMounted] = useState(false);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
-  const { isKurdish } = useLanguage();
 
   // Ensure no hydration mismatch
   useEffect(() => {
@@ -139,106 +93,86 @@ export default function SettingsPage() {
     return null; // Avoid rendering until client-side to prevent hydration mismatch
   }
 
-  // Settings data with both languages
-  const settings = [
-    {
-      icon: <Paintbrush className="h-5 w-5" />,
-      titleEn: "Chat Themes",
-      titleKu: "ڕووکاری چات",
-      descriptionEn: "Customize chat background and colors",
-      descriptionKu: "ڕووکاری چات و ڕەنگەکانی دەستکاری بکە",
-      path: "/appearance"
-    },
-    {
-      icon: <Globe className="h-5 w-5" />,
-      titleEn: "Language",
-      titleKu: "زمان",
-      descriptionEn: "Change application language",
-      descriptionKu: "گۆڕینی زمانی بەرنامە",
-      path: "/settings/language"
-    },
-    {
-      icon: <ShieldCheck className="h-5 w-5" />,
-      titleEn: "Privacy Policy",
-      titleKu: "سیاسەتی تایبەتمەندی",
-      descriptionEn: "Review our privacy practices",
-      descriptionKu: "پێداچوونەوە بۆ شێوازەکانی تایبەتمەندیمان",
-      path: "/privacy-policy"
-    },
-    {
-      icon: <Lock className="h-5 w-5" />,
-      titleEn: "Terms of Service",
-      titleKu: "مەرجەکانی خزمەتگوزاری",
-      descriptionEn: "Review our terms and conditions",
-      descriptionKu: "پێداچوونەوە بۆ مەرج و ڕێساکانمان",
-      path: "/terms"
-    },
-    {
-      icon: <Info className="h-5 w-5" />,
-      titleEn: "About",
-      titleKu: "دەربارە",
-      descriptionEn: "Information about ChatKurd",
-      descriptionKu: "زانیاری دەربارەی چاتکورد",
-      path: "/about"
-    },
-    {
-      icon: <HelpCircle className="h-5 w-5" />,
-      titleEn: "Help & FAQ",
-      titleKu: "یارمەتی",
-      descriptionEn: "Get help and frequently asked questions",
-      descriptionKu: "یارمەتی و پرسیارە دووبارەکان وەربگرە",
-      path: "/help"
-    }
-  ];
-
   return (
-    <div className={`flex flex-col min-h-screen bg-gradient-to-b from-purple-950 to-indigo-950 text-white ${isKurdish ? 'kurdish' : ''}`} dir={isKurdish ? "rtl" : "ltr"}>
-      {/* Header */}
-      <div className="p-4 flex items-center">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => router.back()}
-          className={cn("rounded-full text-white hover:bg-white/10", isKurdish ? "ml-2" : "mr-2")}
-        >
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-background">
+       {/* Header */}
+       <header className="flex items-center p-3 border-b dark:border-gray-700 sticky top-0 bg-background/95 backdrop-blur z-10">
+        <Button variant="ghost" size="icon" className="mr-2 rounded-full" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-semibold">
-          {isKurdish ? "ڕێکخستنەکان" : "Settings"}
+        <h1 className="text-lg font-semibold">
+          {language === 'en' ? 'Settings' : <span className="kurdish">ڕێکخستنەکان</span>}
         </h1>
-      </div>
-      
-      {/* Content */}
-      <div className="px-4 py-6">
-        <div className="bg-indigo-900/50 backdrop-blur-md rounded-2xl border border-purple-500/20 overflow-hidden">
-          {settings.map((setting, index) => (
-            <SettingItem 
-              key={index}
-              icon={setting.icon}
-              title={isKurdish ? setting.titleKu : setting.titleEn}
-              description={isKurdish ? setting.descriptionKu : setting.descriptionEn}
-              path={setting.path}
-              isKurdish={isKurdish}
-            />
-          ))}
-        </div>
-        
-        {/* Contact Support */}
-        <div className="mt-6">
-          <Button 
-            onClick={() => router.push('/contact')}
-            className="w-full bg-indigo-800/50 hover:bg-indigo-700/50 text-white border border-purple-500/30 rounded-lg p-3"
-          >
-            {isKurdish ? "پەیوەندیمان پێوە بکە" : "Contact Support"}
-          </Button>
-        </div>
-        
-        {/* App Version */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-purple-400">
-            {isKurdish ? "چاتکورد وەشانی ١.٠.٠" : "ChatKurd Version 1.0.0"}
-          </p>
-        </div>
+      </header>
+
+      {/* Settings List */}
+      <div className="flex-grow p-4 space-y-4 overflow-y-auto pb-20"> {/* Added padding-bottom for TabBar */}
+        <SettingsItem
+          icon={<Palette className="h-5 w-5 text-gray-500" />}
+          label={language === 'en' ? "Appearance" : <span className="kurdish">ڕووکار</span>}
+          onClick={() => setShowThemeSelector(!showThemeSelector)}
+        >
+          <div className="flex items-center">
+            {theme === 'dark' ? (
+              <Moon className="h-4 w-4 text-gray-500 mr-2" />
+            ) : (
+              <Sun className="h-4 w-4 text-gray-500 mr-2" />
+            )}
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          </div>
+        </SettingsItem>
+
+        {/* Display theme selector when expanded */}
+        {showThemeSelector && (
+          <div className="mx-4 mb-2">
+            <ThemeSelector />
+          </div>
+        )}
+
+        <SettingsItem
+          icon={<Languages className="h-5 w-5 text-gray-500" />}
+          label={language === 'en' ? "Language" : <span className="kurdish">زمان</span>}
+        >
+          <Select value={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder={language === 'en' ? "Select language" : "هەڵبژاردنی زمان"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="ku" className="font-kurdish">کوردی</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+
+        <Separator />
+
+        <SettingsItem
+          icon={<Info className="h-5 w-5 text-gray-500" />}
+          label={language === 'en' ? "About" : <span className="kurdish">دەربارە</span>}
+        >
+           <Button variant="ghost" size="sm" onClick={() => handlePlaceholderClick('About')}>
+             {language === 'en' ? "View" : <span className="kurdish">بینین</span>}
+           </Button>
+        </SettingsItem>
+
+         <SettingsItem
+          icon={<ShieldCheck className="h-5 w-5 text-gray-500" />}
+          label={language === 'en' ? "Privacy Policy" : <span className="kurdish">سیاسەتی تایبەتمەندی</span>}
+        >
+           <Button variant="ghost" size="sm" onClick={() => handlePlaceholderClick('Privacy Policy')}>
+             {language === 'en' ? "View" : <span className="kurdish">بینین</span>}
+           </Button>
+        </SettingsItem>
+
+         <SettingsItem
+          icon={<FileText className="h-5 w-5 text-gray-500" />}
+          label={language === 'en' ? "Terms of Service" : <span className="kurdish">مەرجەکانی خزمەتگوزاری</span>}
+        >
+           <Button variant="ghost" size="sm" onClick={() => handlePlaceholderClick('Terms of Service')}>
+             {language === 'en' ? "View" : <span className="kurdish">بینین</span>}
+           </Button>
+        </SettingsItem>
+
       </div>
     </div>
   );

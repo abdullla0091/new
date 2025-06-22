@@ -63,7 +63,6 @@ export default function CharacterCard({ character }: { character: Character }) {
   // Handle favorite button click
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening chat when clicking favorite
-    e.preventDefault(); // Additional prevention
     const newStatus = toggleFavoriteCharacter(characterId);
     setIsFavorite(newStatus);
     
@@ -72,29 +71,18 @@ export default function CharacterCard({ character }: { character: Character }) {
       description: `${character.name} has been ${newStatus ? "added to" : "removed from"} your favorites`,
       duration: 2000,
     });
-    return false;
   };
 
   // Handle profile click
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening chat when clicking profile
-    e.preventDefault(); // Additional prevention
-    window.location.href = `/profile/${characterId}`;
-    return false;
-  };
-
-  // Handle chat click
-  const handleChatClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent default behavior
-    e.preventDefault(); // Additional prevention
-    window.location.href = `/chat/${characterId}`;
-    return false;
+    router.push(`/profile/${characterId}`);
   };
 
   return (
     <div
-      className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.1)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 relative cursor-pointer"
-      onClick={handleChatClick}
+      className="bg-indigo-800/40 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.1)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 relative"
+      onClick={() => router.push(`/chat/${character.id}`)}
     >
       {/* Action Buttons */}
       <div className="absolute top-2 right-2 flex space-x-1 z-10">
@@ -153,7 +141,10 @@ export default function CharacterCard({ character }: { character: Character }) {
             size="sm" 
             variant="ghost" 
             className="text-xs text-purple-300 hover:text-white hover:bg-purple-600/30 w-1/2"
-            onClick={handleChatClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/chat/${characterId}`);
+            }}
           >
             <User className="h-3 w-3 mr-1" />
             Chat

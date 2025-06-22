@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Info, Lock, Menu } from "lucide-react";
+import { ArrowLeft, Info, Lock } from "lucide-react";
 
 interface ChatHeaderProps {
   characterName: string;
@@ -14,7 +14,6 @@ interface ChatHeaderProps {
   isLocked?: boolean;
   onInfoClick: () => void;
   onLanguageToggle: () => void;
-  onMenuClick: () => void;
   currentLanguage: 'en' | 'ku';
   hasSavedChats?: boolean;
 }
@@ -27,28 +26,27 @@ export default function ChatHeader({
   isLocked = false,
   onInfoClick,
   onLanguageToggle,
-  onMenuClick,
   currentLanguage,
   hasSavedChats = false
 }: ChatHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex items-center justify-between p-3 sm:p-4 bg-indigo-950/90 backdrop-blur-md border-b border-purple-500/20 z-50 shadow-[0_4px_20px_rgba(88,28,135,0.15)]">
+    <header className="sticky top-0 flex items-center justify-between p-2 sm:p-3 bg-indigo-950/80 backdrop-blur-md border-b border-purple-500/20 z-50 shadow-[0_4px_20px_rgba(88,28,135,0.15)]">
       <div className="flex items-center flex-1 min-w-0">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => router.push('/explore')} 
-          className="text-purple-300 hover:text-white hover:bg-purple-800/30 h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0"
+          className="text-purple-300 hover:text-white hover:bg-purple-800/30 h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
         >
-          <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+          <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         
-        <div className="flex items-center ml-3 sm:ml-4 flex-1 min-w-0">
+        <div className="flex items-center ml-2 sm:ml-3 flex-1 min-w-0">
           <div className="relative flex-shrink-0">
             <div className="p-0.5 bg-gradient-to-br from-purple-500/50 to-indigo-600/50 rounded-full">
-              <Avatar className="h-9 w-9 sm:h-10 sm:w-10 ring-1 ring-purple-500/20">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 ring-1 ring-purple-500/20">
                 {characterImage ? (
                   <AvatarImage src={characterImage} alt={characterName || 'Character'} className="object-cover" />
                 ) : (
@@ -60,22 +58,22 @@ export default function ChatHeader({
             </div>
             {isLocked && (
               <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5">
-                <Lock className="h-3 w-3 text-indigo-950" />
+                <Lock className="h-2.5 w-2.5 text-indigo-950" />
               </div>
             )}
           </div>
           
-          <div className="ml-2.5 sm:ml-3.5 truncate">
-            <h1 className="font-bold text-white text-base sm:text-lg truncate">{characterName || 'Character'}</h1>
-            <p className="text-xs sm:text-sm text-purple-300 truncate">{status}</p>
+          <div className="ml-2 sm:ml-3 truncate">
+            <h1 className="font-bold text-white text-sm sm:text-base truncate">{characterName || 'Character'}</h1>
+            <p className="text-xs text-purple-300 truncate">{status}</p>
           </div>
         </div>
       </div>
       
-      <div className="flex items-center gap-1.5 sm:gap-2.5 ml-2 flex-shrink-0">
+      <div className="flex items-center gap-1 sm:gap-2 ml-2 flex-shrink-0">
         {hasSavedChats && (
-          <div className="text-xs text-green-400 flex items-center mr-1.5">
-            <Lock className="h-3 w-3 mr-1" />
+          <div className="text-xs text-green-400 flex items-center mr-1">
+            <Lock className="h-2.5 w-2.5 mr-1" />
             <span className="hidden sm:inline text-xs">Saved</span>
           </div>
         )}
@@ -84,28 +82,18 @@ export default function ChatHeader({
           variant="ghost"
           size="icon"
           onClick={onInfoClick}
-          className="text-purple-300 hover:text-white hover:bg-purple-800/30 h-9 w-9 sm:h-10 sm:w-10"
+          className="text-purple-300 hover:text-white hover:bg-purple-800/30 h-8 w-8 sm:h-9 sm:w-9"
         >
-          <Info className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+          <Info className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         
         <Button
           variant="outline"
           size="sm"
           onClick={onLanguageToggle}
-          className="h-9 sm:h-10 px-3 sm:px-4 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white text-sm"
+          className="h-8 sm:h-9 px-2 sm:px-3 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white text-xs sm:text-sm"
         >
           {currentLanguage.toUpperCase()}
-        </Button>
-        
-        {/* Mobile menu button - only shown on mobile */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onMenuClick}
-          className="md:hidden text-purple-300 hover:text-white hover:bg-purple-800/30 h-9 w-9 sm:h-10 sm:w-10"
-        >
-          <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
     </header>

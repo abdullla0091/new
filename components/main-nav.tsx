@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import ThemeToggle from "@/components/theme-toggle"
 import { ChatHistoryDialog } from "@/components/chat/chat-history-dialog"
 import { Chat } from "@/types"
 
@@ -21,7 +22,6 @@ export function MainNav({ className, chats = [] }: MainNavProps) {
   const isChatPage = pathname.startsWith("/chat")
   const isExplore = pathname === "/"
   const isSettings = pathname === "/settings"
-  const isAbout = pathname === "/about"
   
   return (
     <nav className={cn("flex items-center justify-between", className)}>
@@ -56,16 +56,9 @@ export function MainNav({ className, chats = [] }: MainNavProps) {
           >
             <Link href="/settings">Settings</Link>
           </Button>
-          <Button 
-            variant={isAbout ? "default" : "ghost"} 
-            size="sm"
-            className="font-normal"
-            asChild
-          >
-            <Link href="/about">About</Link>
-          </Button>
         </div>
       </div>
+      <ThemeToggle variant="button" />
       {chats.length > 0 && (
         <ChatHistoryDialog
           open={historyOpen}

@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Upload, User, X, Camera } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { useLanguage } from '@/app/i18n/LanguageContext'
-import { getTranslation } from '@/app/i18n/translations'
 
 interface ImageUploadProps {
   value?: string | null
@@ -48,8 +46,6 @@ export default function ImageUpload({
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-  const { language, isKurdish } = useLanguage()
-  const t = (key: any) => getTranslation(language, key)
   const avatarGradient = getAvatarGradient(name);
 
   // Update preview when value changes
@@ -208,14 +204,12 @@ export default function ImageUpload({
       />
       
       {isUploading && (
-        <div className={`mt-2 text-xs text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-          {t("uploading") || "Uploading..."}
-        </div>
+        <div className="mt-2 text-xs text-purple-300">Uploading...</div>
       )}
       
       {!preview && !isUploading && (
-        <div className={`mt-1 text-xs text-purple-300 ${isKurdish ? 'kurdish use-local-kurdish' : ''}`}>
-          {/* Don't show this text in profile page context */}
+        <div className="mt-1 text-xs text-purple-300">
+          Click or drop image
         </div>
       )}
     </div>

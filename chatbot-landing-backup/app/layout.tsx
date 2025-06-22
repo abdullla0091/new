@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Nestro Chat - AI Characters with Personality",
+  title: "CharacterChat - AI Characters with Personality",
   description: "Experience conversations with unique AI characters that have distinct personalities and expertise.",
     generator: 'v0.dev'
 }

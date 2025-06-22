@@ -2,19 +2,19 @@
 
 import { ReactNode } from 'react'
 import { AuthProvider } from '@/context/auth-context'
+import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { VerificationProvider } from '@/context/verification-context'
-import { ThemeProvider } from '@/components/theme-provider'
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <VerificationProvider>
+    <AuthProvider>
+      <VerificationProvider>
+        <ThemeProvider>
           {children}
           <Toaster />
-        </VerificationProvider>
-      </AuthProvider>
-    </ThemeProvider>
+        </ThemeProvider>
+      </VerificationProvider>
+    </AuthProvider>
   )
 } 
