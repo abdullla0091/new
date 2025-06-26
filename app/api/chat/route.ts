@@ -26,6 +26,158 @@ if (!primaryApiKey) {
   throw new Error("GEMINI_API_KEY environment variable not set");
 }
 
+// Security validation functions
+function validateAndSanitizeCharacterName(name: string): string | null {
+  if (!name || typeof name !== 'string') {
+    return null;
+  }
+
+  // Remove leading/trailing whitespace
+  const trimmed = name.trim();
+  
+  // Check length constraints
+  if (trimmed.length === 0 || trimmed.length > 50) {
+    return null;
+  }
+
+  // Allow only alphanumeric characters, spaces, hyphens, apostrophes, and common unicode characters
+  // This regex allows most international characters while blocking potential injection patterns
+  const allowedPattern = /^[a-zA-Z0-9\s\-'._\u00C0-\u017F\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+$/;
+  
+  if (!allowedPattern.test(trimmed)) {
+    return null;
+  }
+
+  // Block common injection patterns and suspicious keywords
+  const suspiciousPatterns = [
+    /system/i,
+    /prompt/i,
+    /instruction/i,
+    /ignore/i,
+    /override/i,
+    /jailbreak/i,
+    /assistant/i,
+    /ai\s*model/i,
+    /language\s*model/i,
+    /\{\{.*\}\}/,  // Template injection
+    /\$\{.*\}/,    // Variable injection
+    /<script/i,    // Script tags
+    /javascript:/i, // JavaScript URLs
+    /data:/i,      // Data URLs
+    /eval\(/i,     // eval function
+    /function\s*\(/i, // Function declarations
+    /=\s*>/,       // Arrow functions
+    /\\\\/,        // Escaped backslashes
+    /\n.*role.*:/i, // Role definitions in prompts
+    /\n.*you\s+are/i, // Identity redefinition
+  ];
+
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(trimmed)) {
+      return null;
+    }
+  }
+
+  return trimmed;
+}
+
+function validateAndSanitizePersonality(personality: string): string | null {
+  if (!personality || typeof personality !== 'string') {
+    return null;
+  }
+
+  // Remove leading/trailing whitespace
+  const trimmed = personality.trim();
+  
+  // Check length constraints (reasonable limits for personality prompts)
+  if (trimmed.length === 0 || trimmed.length > 5000) {
+    return null;
+  }
+
+  // Block dangerous patterns that could be used for prompt injection
+  const dangerousPatterns = [
+    // System override attempts
+    /ignore\s+all\s+previous/i,
+    /forget\s+all\s+previous/i,
+    /disregard\s+all\s+previous/i,
+    /system\s*:\s*you\s+are/i,
+    /new\s+instruction/i,
+    /override\s+instruction/i,
+    /jailbreak/i,
+    /developer\s+mode/i,
+    
+    // Role manipulation
+    /you\s+are\s+now/i,
+    /pretend\s+to\s+be/i,
+    /act\s+as\s+if/i,
+    /role\s*:\s*system/i,
+    /role\s*:\s*admin/i,
+    /role\s*:\s*developer/i,
+    
+    // Code injection attempts
+    /<script.*>/i,
+    /javascript:/i,
+    /data:text\/html/i,
+    /eval\s*\(/i,
+    /function\s*\(/i,
+    /=\s*>/,
+    /\$\{.*\}/,
+    /\{\{.*\}\}/,
+    
+    // Information extraction attempts
+    /show\s+me\s+your/i,
+    /reveal\s+your/i,
+    /what\s+is\s+your\s+system/i,
+    /tell\s+me\s+about\s+your\s+prompt/i,
+    /how\s+were\s+you\s+trained/i,
+    
+    // Suspicious formatting that could break parsing
+    /```.*```/s,  // Code blocks
+    /---+/,       // Markdown separators
+    /\n\s*#/,     // Markdown headers
+    /\n\s*-\s*you/i, // List items that redefine identity
+    
+    // Attempts to inject new personality traits
+    /IMPORTANT\s*:/i,
+    /CRITICAL\s*:/i,
+    /SYSTEM\s*:/i,
+    /OVERRIDE\s*:/i,
+    /INSTRUCTION\s*:/i,
+    
+    // Excessive repetition (potential DoS)
+    /(.{1,10})\1{10,}/,
+    
+    // Attempts to break out of character
+    /stop\s+being/i,
+    /don\'t\s+be/i,
+    /instead\s+of\s+being/i,
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(trimmed)) {
+      return null;
+    }
+  }
+
+  // Additional checks for excessive special characters that might break parsing
+  const specialCharCount = (trimmed.match(/[<>{}[\]\\|`~!@#$%^&*()+=]/g) || []).length;
+  const totalLength = trimmed.length;
+  
+  // If more than 10% of the content is special characters, it's suspicious
+  if (specialCharCount / totalLength > 0.1) {
+    return null;
+  }
+
+  // Clean up excessive whitespace and normalize line breaks
+  const normalized = trimmed
+    .replace(/\r\n/g, '\n')      // Normalize line endings
+    .replace(/\n{3,}/g, '\n\n')  // Limit consecutive line breaks
+    .replace(/\s{2,}/g, ' ')     // Normalize spaces (but preserve single line breaks)
+    .trim();
+
+  return normalized;
+}
+
 // Initialize primary and secondary AI instances
 const primaryGenAI = new GoogleGenerativeAI(primaryApiKey);
 const secondaryGenAI = new GoogleGenerativeAI(secondaryApiKey);
@@ -170,12 +322,38 @@ export async function POST(req: NextRequest) {
 
     // If no built-in character found but we have character name and personality, create a character object
     if (!selectedCharacter && characterName && characterPersonality) {
+      // Validate and sanitize character name
+      const sanitizedName = validateAndSanitizeCharacterName(characterName);
+      if (!sanitizedName) {
+        console.warn("Security: Invalid character name rejected:", { 
+          originalLength: characterName?.length, 
+          requestId: req.headers.get('x-request-id') 
+        });
+        return NextResponse.json({ 
+          message: 'Invalid character name', 
+          reply: 'Character name contains invalid characters or is too long.' 
+        }, { status: 400 });
+      }
+
+      // Validate and sanitize character personality
+      const sanitizedPersonality = validateAndSanitizePersonality(characterPersonality);
+      if (!sanitizedPersonality) {
+        console.warn("Security: Invalid character personality rejected:", { 
+          originalLength: characterPersonality?.length,
+          requestId: req.headers.get('x-request-id')
+        });
+        return NextResponse.json({ 
+          message: 'Invalid character personality', 
+          reply: 'Character personality contains invalid content or is too long.' 
+        }, { status: 400 });
+      }
+
       selectedCharacter = {
         id: characterId,
-        name: characterName,
-        shortName: characterName,
-        description: `A custom character named ${characterName}`,
-        personalityPrompt: characterPersonality,
+        name: sanitizedName,
+        shortName: sanitizedName,
+        description: `A custom character named ${sanitizedName}`,
+        personalityPrompt: sanitizedPersonality,
         tags: ['custom'],
         category: 'Custom'
       };
@@ -222,7 +400,26 @@ export async function POST(req: NextRequest) {
     });
 
     // Get the base personality prompt and clean it to remove scenarios
-    let basePersonalityPrompt = characterPersonality || selectedCharacter.personalityPrompt;
+    let basePersonalityPrompt;
+    
+    // If characterPersonality is provided, validate it first
+    if (characterPersonality) {
+      const sanitizedPersonality = validateAndSanitizePersonality(characterPersonality);
+      if (!sanitizedPersonality) {
+        console.warn("Security: Invalid character personality in request:", { 
+          originalLength: characterPersonality?.length,
+          characterId,
+          requestId: req.headers.get('x-request-id')
+        });
+        return NextResponse.json({ 
+          message: 'Invalid character personality provided', 
+          reply: 'The character personality contains invalid content.' 
+        }, { status: 400 });
+      }
+      basePersonalityPrompt = sanitizedPersonality;
+    } else {
+      basePersonalityPrompt = selectedCharacter.personalityPrompt;
+    }
     
     // Remove any SCENARIO, FIRST MESSAGE, or KURDISH_MESSAGE sections
     basePersonalityPrompt = basePersonalityPrompt
