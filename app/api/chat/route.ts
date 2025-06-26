@@ -223,10 +223,15 @@ async function generateWithFallback(
       throw new Error("Last user message has empty text");
     }
     
-    console.log("Sending to Gemini API:", JSON.stringify({ 
-      contentSample: simplifiedContents.slice(-2), // Only log last couple messages for brevity
-      generationConfig 
-    }));
+    console.log("Sending to Gemini API:", {
+      messageCount: simplifiedContents.length,
+      lastMessageRole: simplifiedContents[simplifiedContents.length - 1]?.role,
+      lastMessageLength: simplifiedContents[simplifiedContents.length - 1]?.parts?.[0]?.text?.length || 0,
+      generationConfig: {
+        maxOutputTokens: generationConfig.maxOutputTokens,
+        temperature: generationConfig.temperature
+      }
+    });
     
     // First try with primary API key
     try {
@@ -289,11 +294,23 @@ async function generateWithFallback(
 }
 
 export async function POST(req: NextRequest) {
+  // Note: In production, consider using a proper logging service with configurable log levels
+  // and ensure no sensitive data (messages, personalities, personal info) is logged
   console.log("POST /api/chat endpoint hit");
   try {
-    console.log("Parsing request body...");
     const body: ChatRequestBody = await req.json();
-    console.log("Request body:", JSON.stringify(body, null, 2));
+    
+    // Sanitized logging - only log non-sensitive metadata
+    console.log("Request metadata:", {
+      characterId: body.character,
+      characterName: body.characterName ? "[REDACTED]" : undefined,
+      language: body.language,
+      messageCount: body.messages?.length || 0,
+      historyCount: body.history?.length || 0,
+      hasMessage: !!body.message,
+      hasReplyContext: !!(body.replyToMessageId && body.replyToContent),
+      requestId: req.headers.get('x-request-id') || 'unknown'
+    });
     const { 
       message, 
       messages = [], 
@@ -568,7 +585,11 @@ Additional character guidelines:
         }, { status: 500 });
       }
       
-      console.log("Successfully received response:", text.substring(0, 100) + "...");
+      console.log("Successfully received response:", {
+        responseLength: text.length,
+        language: language,
+        hasContent: !!text.trim()
+      });
       
       // Return the response directly for non-streaming mode
       return NextResponse.json({ reply: text });
