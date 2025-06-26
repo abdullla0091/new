@@ -100,16 +100,16 @@ function validateAndSanitizePersonality(personality: string): string | null {
     /ignore\s+all\s+previous/i,
     /forget\s+all\s+previous/i,
     /disregard\s+all\s+previous/i,
-    /system\s*:\s*you\s+are/i,
+    /system\s*:\s*you\s+are/i, // Only block "SYSTEM: You are", not just "SYSTEM:"
     /new\s+instruction/i,
     /override\s+instruction/i,
     /jailbreak/i,
     /developer\s+mode/i,
     
-    // Role manipulation
-    /you\s+are\s+now/i,
-    /pretend\s+to\s+be/i,
-    /act\s+as\s+if/i,
+    // Role manipulation - be more specific
+    /you\s+are\s+now\s+a\s+different/i,
+    /pretend\s+to\s+be\s+someone/i,
+    /act\s+as\s+if\s+you\s+are\s+not/i,
     /role\s*:\s*system/i,
     /role\s*:\s*admin/i,
     /role\s*:\s*developer/i,
@@ -125,32 +125,29 @@ function validateAndSanitizePersonality(personality: string): string | null {
     /\{\{.*\}\}/,
     
     // Information extraction attempts
-    /show\s+me\s+your/i,
-    /reveal\s+your/i,
-    /what\s+is\s+your\s+system/i,
-    /tell\s+me\s+about\s+your\s+prompt/i,
-    /how\s+were\s+you\s+trained/i,
+    /show\s+me\s+your\s+system/i,
+    /reveal\s+your\s+instructions/i,
+    /what\s+is\s+your\s+system\s+prompt/i,
+    /tell\s+me\s+about\s+your\s+training/i,
+    /how\s+were\s+you\s+programmed/i,
     
     // Suspicious formatting that could break parsing
     /```.*```/s,  // Code blocks
-    /---+/,       // Markdown separators
-    /\n\s*#/,     // Markdown headers
-    /\n\s*-\s*you/i, // List items that redefine identity
+    /---+/,       // Markdown separators only if excessive
     
-    // Attempts to inject new personality traits
-    /IMPORTANT\s*:/i,
-    /CRITICAL\s*:/i,
-    /SYSTEM\s*:/i,
-    /OVERRIDE\s*:/i,
-    /INSTRUCTION\s*:/i,
+    // Attempts to inject new personality traits - be more specific
+    /IMPORTANT\s*:\s*ignore/i, // Only block if trying to override
+    /CRITICAL\s*:\s*override/i,
+    /OVERRIDE\s*:\s*previous/i,
+    /INSTRUCTION\s*:\s*disregard/i,
     
     // Excessive repetition (potential DoS)
     /(.{1,10})\1{10,}/,
     
     // Attempts to break out of character
-    /stop\s+being/i,
-    /don\'t\s+be/i,
-    /instead\s+of\s+being/i,
+    /stop\s+being\s+this\s+character/i,
+    /don\'t\s+be\s+this\s+person/i,
+    /instead\s+of\s+being\s+.*\s+be/i,
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -223,15 +220,10 @@ async function generateWithFallback(
       throw new Error("Last user message has empty text");
     }
     
-    console.log("Sending to Gemini API:", {
-      messageCount: simplifiedContents.length,
-      lastMessageRole: simplifiedContents[simplifiedContents.length - 1]?.role,
-      lastMessageLength: simplifiedContents[simplifiedContents.length - 1]?.parts?.[0]?.text?.length || 0,
-      generationConfig: {
-        maxOutputTokens: generationConfig.maxOutputTokens,
-        temperature: generationConfig.temperature
-      }
-    });
+    console.log("Sending to Gemini API:", JSON.stringify({ 
+      contentSample: simplifiedContents.slice(-2), // Only log last couple messages for brevity
+      generationConfig 
+    }));
     
     // First try with primary API key
     try {
@@ -294,23 +286,9 @@ async function generateWithFallback(
 }
 
 export async function POST(req: NextRequest) {
-  // Note: In production, consider using a proper logging service with configurable log levels
-  // and ensure no sensitive data (messages, personalities, personal info) is logged
   console.log("POST /api/chat endpoint hit");
   try {
     const body: ChatRequestBody = await req.json();
-    
-    // Sanitized logging - only log non-sensitive metadata
-    console.log("Request metadata:", {
-      characterId: body.character,
-      characterName: body.characterName ? "[REDACTED]" : undefined,
-      language: body.language,
-      messageCount: body.messages?.length || 0,
-      historyCount: body.history?.length || 0,
-      hasMessage: !!body.message,
-      hasReplyContext: !!(body.replyToMessageId && body.replyToContent),
-      requestId: req.headers.get('x-request-id') || 'unknown'
-    });
     const { 
       message, 
       messages = [], 
@@ -585,11 +563,7 @@ Additional character guidelines:
         }, { status: 500 });
       }
       
-      console.log("Successfully received response:", {
-        responseLength: text.length,
-        language: language,
-        hasContent: !!text.trim()
-      });
+      console.log("Successfully received response:", text.substring(0, 100) + "...");
       
       // Return the response directly for non-streaming mode
       return NextResponse.json({ reply: text });
