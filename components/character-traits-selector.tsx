@@ -184,6 +184,7 @@ export default function CharacterTraitsSelector({
                         className="flex-1"
                       />
                       <Button 
+                        type="button"
                         size="sm" 
                         onClick={() => handleSaveCustomTrait(
                           category, 
@@ -194,6 +195,7 @@ export default function CharacterTraitsSelector({
                         <Check className="h-4 w-4" />
                       </Button>
                       <Button 
+                        type="button"
                         size="sm" 
                         variant="outline"
                         onClick={() => handleCancelCustomTrait(
@@ -212,6 +214,7 @@ export default function CharacterTraitsSelector({
                     <div key={trait.id} className="relative group">
                       {isCustomTraitWithValue(category, trait.id) ? (
                         <Button
+                          type="button"
                           variant="default"
                           size="sm"
                           className="w-full justify-start bg-primary text-primary-foreground"
@@ -221,6 +224,7 @@ export default function CharacterTraitsSelector({
                         </Button>
                       ) : (
                         <Button
+                          type="button"
                           variant={isTraitSelected(category, trait.id) ? "default" : "outline"}
                           size="sm"
                           className={`w-full justify-start ${

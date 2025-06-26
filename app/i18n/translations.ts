@@ -73,7 +73,31 @@ export const translations = {
     copyright: "© 2023 CharacterChat. All rights reserved.",
     
     // Language toggle
-    switchLanguage: "کوردی"
+    switchLanguage: "کوردی",
+    
+    // Explore page
+    discover: "DISCOVER",
+    exploreCharactersTitle: "Explore Characters",
+    exploreCharactersDesc: "Find the perfect AI companion to chat with from our collection of unique personalities.",
+    searchPlaceholder: "Search by name or description...",
+    filters: "Filters",
+    filterCharacters: "Filter Characters",
+    filterCharactersDesc: "Customize your character search with these filters.",
+    characterType: "Character Type",
+    all: "All",
+    builtIn: "Built-in",
+    custom: "Custom",
+    sortBy: "Sort By",
+    mostPopular: "Most Popular",
+    highestRated: "Highest Rated",
+    newestFirst: "Newest First",
+    characterTags: "Character Tags",
+    resetFilters: "Reset Filters",
+    applyFilters: "Apply Filters",
+    createCharacter: "Create",
+    noCharactersFound: "No Characters Found",
+    noCharactersFoundDesc: "Try adjusting your search or filters to find characters, or create your own custom character.",
+    createYourOwnCharacter: "Create Your Own Character"
   },
   ku: {
     // Navigation
@@ -147,7 +171,31 @@ export const translations = {
     copyright: "© ٢٠٢٣ کارەکتەرچات. هەموو مافەکان پارێزراون.",
     
     // Language toggle
-    switchLanguage: "English"
+    switchLanguage: "English",
+    
+    // Explore page
+    discover: "کەشفکردن",
+    exploreCharactersTitle: "گەڕان بۆ کەسایەتییەکان",
+    exploreCharactersDesc: "هاوڕێی تەواوی هۆش دەستکردی بدۆزەرەوە بۆ گفتوگۆ لەناو کۆمەڵەی کەسایەتییە تایبەتەکانمان.",
+    searchPlaceholder: "گەڕان بە ناو یان وەسف...",
+    filters: "فلتەرەکان",
+    filterCharacters: "فلتەرکردنی کەسایەتییەکان",
+    filterCharactersDesc: "گەڕانەکەت بۆ کەسایەتییەکان بە ئەم فلتەرانە دڵخواز بکە.",
+    characterType: "جۆری کەسایەتی",
+    all: "هەموو",
+    builtIn: "دروستکراو",
+    custom: "تایبەت",
+    sortBy: "ڕیزکردن بەپێی",
+    mostPopular: "زۆرترین بەناوبانگ",
+    highestRated: "بەرزترین نرخاندن",
+    newestFirst: "نوێترین یەکەم",
+    characterTags: "تاگەکانی کەسایەتی",
+    resetFilters: "ڕێکخستنەوەی فلتەرەکان",
+    applyFilters: "جێبەجێکردنی فلتەرەکان",
+    createCharacter: "دروستکردن",
+    noCharactersFound: "هیچ کەسایەتییەک نەدۆزرایەوە",
+    noCharactersFoundDesc: "گەڕان یان فلتەرەکانت بگۆڕە بۆ دۆزینەوەی کەسایەتییەکان، یان کەسایەتییەکی تایبەت بە خۆت دروست بکە.",
+    createYourOwnCharacter: "کەسایەتییەکی تایبەت بە خۆت دروست بکە"
   }
 };
 

@@ -15,6 +15,7 @@ function RootLayoutClientInner({ children }) {
   const pathname = usePathname();
   const { language } = useLanguage();
   const isLandingPage = pathname === '/';
+  const isChatPage = pathname.startsWith('/chat/');
   const isKurdish = language === 'ku';
 
   return (
@@ -36,7 +37,7 @@ function RootLayoutClientInner({ children }) {
             <main className="flex-grow overflow-y-auto w-full">
               {children}
             </main>
-            <TabBar />
+            {!isChatPage && <TabBar />}
           </div>
           <WelcomePopup />
         </ThemeWrapper>

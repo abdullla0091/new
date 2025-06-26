@@ -76,12 +76,12 @@ export default function CharacterForm({
       const defaultPrompt = generateDefaultPersonalityPrompt(name, tags);
       setPersonalityPrompt(defaultPrompt);
     }
-  }, [name, tags, isEditing, personalityPrompt]);
+  }, [name, tags, isEditing]);
 
-  // Update personality prompt when traits are selected
+  // Update personality prompt when traits are selected (but don't auto-submit)
   useEffect(() => {
-    // Only update if there are traits selected and we're not in edit mode with existing prompt
-    if (Object.values(selectedTraits).flat().length > 0 && (!isEditing || !personalityPrompt)) {
+    // Only update if there are traits selected and we're creating a new character
+    if (Object.values(selectedTraits).flat().length > 0 && !isEditing) {
       const structuredPrompt = generateStructuredPersonalityPrompt(
         name || 'Character',
         description || 'unique character',
@@ -90,7 +90,7 @@ export default function CharacterForm({
       );
       setPersonalityPrompt(structuredPrompt);
     }
-  }, [selectedTraits, customTraits, name, description, isEditing, personalityPrompt]);
+  }, [selectedTraits, customTraits, name, description, isEditing]);
   
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -133,15 +133,6 @@ export default function CharacterForm({
       return;
     }
     
-    if (!description.trim()) {
-      toast({
-        title: "Description Required",
-        description: "Please provide a description for your character.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     if (!personalityPrompt.trim()) {
       toast({
         title: "Personality Required",
@@ -160,12 +151,17 @@ export default function CharacterForm({
       return;
     }
     
+    // Generate description if empty
+    const finalDescription = description.trim() || (tags.length > 0 
+      ? `A ${tags.slice(0, 2).join(' and ')} character named ${name}.`
+      : `An AI character named ${name}.`);
+    
     // Create new character object
     const newCharacter: Character = {
       id: character?.id || `custom-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       name,
       shortName: shortName || name,
-      description,
+      description: finalDescription,
       personalityPrompt,
       tags,
       category,
@@ -374,7 +370,10 @@ export default function CharacterForm({
           </Button>
         )}
         
-        <Button type="submit" className="flex items-center gap-2">
+        <Button 
+          type="submit" 
+          className="flex items-center gap-2"
+        >
           <Save className="h-4 w-4" /> {isEditing ? 'Update' : 'Create'} Character
         </Button>
       </div>

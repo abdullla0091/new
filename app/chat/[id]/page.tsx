@@ -7,9 +7,11 @@ import { useLanguage } from '@/app/i18n/LanguageContext';
 import ChatHeader from '@/components/chat/chat-header';
 import ChatMessage from '@/components/chat/chat-message';
 import ChatInput from '@/components/chat/chat-input';
+import ChatThemeToggle, { ChatTheme, themes } from '@/components/chat-theme-toggle';
 import { getAvatarGradient } from '@/lib/utils';
 import { parseMessage } from '@/lib/message-parser';
 import { characters } from '@/lib/characters';
+import { getCustomCharacterById } from '@/lib/custom-characters';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageCircle, Info, Heart } from "lucide-react";
@@ -22,7 +24,6 @@ interface Character {
   name: string;
   image: string | null;
   description: string;
-  greeting?: string;
   rating?: number;
   totalChats?: number;
   category?: string;
@@ -50,6 +51,7 @@ export default function ChatPage() {
   const [lastMessageSent, setLastMessageSent] = useState('');
   const [replyTo, setReplyTo] = useState<{id: string; content: string; isUser: boolean} | null>(null);
   const [passcodeEntered, setPasscodeEntered] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<ChatTheme>(themes[0]); // Default theme
   
   // Ref for message elements to scroll to when clicked
   const messageRefs = useRef<{[key: string]: HTMLDivElement}>({});
@@ -203,7 +205,7 @@ export default function ChatPage() {
       if (aiResponseText) {
         return {
           id: Date.now().toString(),
-          role: 'model',
+          role: 'model' as const,
           content: parseMessage(aiResponseText),
           timestamp: Date.now()
         };
@@ -263,7 +265,7 @@ export default function ChatPage() {
     // Create a response message with reply information if provided
     return {
       id: Date.now().toString(),
-      role: 'model',
+      role: 'model' as const,
       content: parseMessage(response),
       timestamp: Date.now(),
       replyTo: replyToId // Include the ID of the message being replied to
@@ -372,12 +374,26 @@ export default function ChatPage() {
     // In a real app, you would save this to the user's preferences
   };
 
+  // Handle theme change
+  const handleThemeChange = (theme: ChatTheme) => {
+    setCurrentTheme(theme);
+    // In a real app, you would save this to the user's preferences
+  };
+
   useEffect(() => {
     // Fetch character data
     const id = params?.id as string;
     if (id) {
-      // Try to find character in predefined list
-      const foundCharacter = characters.find(char => char.id.toString() === id);
+      // First try to find character in predefined list
+      let foundCharacter = characters.find(char => char.id.toString() === id);
+      
+      // If not found in predefined characters, check custom characters
+      if (!foundCharacter) {
+        const customCharacter = getCustomCharacterById(id);
+        if (customCharacter) {
+          foundCharacter = customCharacter;
+        }
+      }
       
       if (foundCharacter) {
         setCharacter({
@@ -385,7 +401,6 @@ export default function ChatPage() {
           name: foundCharacter.name,
           image: null, // Replace with real image if available
           description: foundCharacter.description,
-          greeting: foundCharacter.greeting || `Hi there! I'm ${foundCharacter.name}. How can I help you today?`,
           rating: parseFloat((4.2 + Math.random() * 0.8).toFixed(1)), // Random rating between 4.2-5.0
           totalChats: Math.floor(Math.random() * 25000) + 5000, // Random popularity count
           category: foundCharacter.category || foundCharacter.tags?.[0] || "General",
@@ -398,7 +413,6 @@ export default function ChatPage() {
           name: "AI Character",
           image: null,
           description: "An AI character",
-          greeting: "Hello! I'm your AI assistant. How can I help you today?",
           rating: 4.8,
           totalChats: 12500,
           category: "Assistant",
@@ -473,7 +487,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-gradient-to-b from-indigo-950 to-purple-950">
+    <div className={`flex flex-col h-[100dvh] ${currentTheme.background}`}>
       <ChatHeader
         characterName={character.name}
         characterImage={character.image}
@@ -484,54 +498,8 @@ export default function ChatPage() {
         currentLanguage={language}
       />
       
-      {/* Character profile navbar - fixed alignment */}
-      <div className="w-full bg-indigo-900/80 backdrop-blur-md border-b border-purple-500/30 pt-16">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Left side - Character info */}
-          <div className="flex items-center">
-            <div className="relative mr-3">
-              <div className="p-0.5 bg-gradient-to-br from-purple-500/50 to-indigo-600/50 rounded-full">
-                <Avatar className="h-12 w-12 sm:h-14 sm:w-14 ring-1 ring-purple-500/20">
-                  {character.image ? (
-                    <AvatarImage src={character.image} alt={character.name} className="object-cover" />
-                  ) : (
-                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(character.name)}`}>
-                      {character.name[0]}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-              </div>
-            </div>
-            
-            <div>
-              <h2 className="font-bold text-lg text-white">{character.name}</h2>
-              <div className="flex items-center text-xs text-purple-200 mt-0.5">
-                <div className="flex items-center mr-3">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                  <span>{character.rating}</span>
-                </div>
-                <div className="flex items-center">
-                  <MessageCircle className="h-3 w-3 text-purple-300 mr-1" />
-                  <span>{(character.totalChats || 0).toLocaleString()} {language === 'ku' ? 'گفتوگۆ' : 'chats'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Right side - Action buttons */}
-          <div className="flex items-center gap-2">
-            <button onClick={toggleFavorite} className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
-              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-400 text-red-400' : 'text-purple-300'}`} />
-            </button>
-            <button className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-800/40 hover:bg-indigo-700/60 transition-colors">
-              <Info className="h-4 w-4 text-purple-300" />
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Chat container */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-600/20 hover:scrollbar-thumb-indigo-600/30">
+      {/* Chat container with proper spacing */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-600/20 hover:scrollbar-thumb-indigo-600/30 pt-4 pb-40">
         <div className="flex flex-col gap-4 py-4 px-2 sm:px-4 max-w-4xl mx-auto">
           {messages.length > 0 ? (
             messages.map((message) => {
@@ -561,10 +529,7 @@ export default function ChatPage() {
                     characterImage={character.image}
                     avatarGradient={getAvatarGradient(character.name)}
                     onDelete={handleDeleteMessage}
-                    onReply={handleReply}
-                    replyTo={message.replyTo}
-                    replyContent={replyContent}
-                    scrollToMessage={scrollToMessage}
+                    currentTheme={currentTheme.id}
                   />
                 </div>
               );
@@ -596,14 +561,37 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        isProcessing={isProcessing}
-        placeholder={language === 'ku' ? `نامە بۆ ${character.name}...` : `Message ${character.name}...`}
-        className="sticky bottom-0 max-w-4xl mx-auto w-full z-10"
-        replyTo={replyTo}
-        onCancelReply={handleCancelReply}
-      />
+      {/* Fixed Chat Input with floating action buttons above */}
+      <div className="fixed bottom-4 left-0 right-0 z-30">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Floating Action buttons above the input */}
+          <div className="flex justify-end mb-3">
+            <div className="flex items-center gap-2">
+              <ChatThemeToggle 
+                currentTheme={currentTheme.id}
+                onThemeChange={handleThemeChange}
+                language={language}
+              />
+              <button onClick={toggleFavorite} className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md border border-white/10">
+                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-400 text-red-400' : 'text-white/70'}`} />
+              </button>
+              <button className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md border border-white/10">
+                <Info className="h-5 w-5 text-white/70" />
+              </button>
+            </div>
+          </div>
+          
+          {/* Message Input */}
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            isProcessing={isProcessing}
+            placeholder={character ? (language === 'ku' ? `نامە بۆ ${character.name}...` : `Message ${character.name}...`) : (language === 'ku' ? 'نامە...' : 'Message...')}
+            className="w-full"
+            replyTo={replyTo}
+            onCancelReply={handleCancelReply}
+          />
+        </div>
+      </div>
     </div>
   );
 }

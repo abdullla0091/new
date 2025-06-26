@@ -24,14 +24,20 @@ export function getCustomCharacterById(id: string): Character | undefined {
 
 // Add or update a custom character in localStorage
 export function saveCustomCharacter(character: Character): Character {
-  if (typeof window === 'undefined') return character;
+  console.log('saveCustomCharacter called with:', character);
+  if (typeof window === 'undefined') {
+    console.log('Window is undefined, returning character');
+    return character;
+  }
   
   try {
     const customCharacters = getCustomCharacters();
+    console.log('Existing custom characters:', customCharacters);
     
     // Generate a unique ID if not provided
     if (!character.id) {
       character.id = `custom-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      console.log('Generated new ID:', character.id);
     }
     
     // Add isCustom flag to easily identify custom characters
@@ -42,17 +48,21 @@ export function saveCustomCharacter(character: Character): Character {
     
     if (existingIndex >= 0) {
       // Update existing character
+      console.log('Updating existing character at index:', existingIndex);
       customCharacters[existingIndex] = character;
     } else {
       // Add new character
+      console.log('Adding new character');
       customCharacters.push(character);
     }
     
+    console.log('Saving to localStorage:', customCharacters);
     localStorage.setItem(CUSTOM_CHARACTERS_KEY, JSON.stringify(customCharacters));
     
     // Dispatch a custom event to notify other components
     const event = new Event('custom-characters-changed');
     window.dispatchEvent(event);
+    console.log('Custom event dispatched');
     
     return character;
   } catch (error) {

@@ -90,8 +90,8 @@ async function generateWithFallback(
         });
         return result.response;
       }
-    } catch (primaryError) {
-      console.warn("Primary API key failed, trying secondary key:", primaryError.message);
+    } catch (primaryError: any) {
+      console.warn("Primary API key failed, trying secondary key:", primaryError?.message || primaryError);
       
       // Try with secondary API key
       if (stream) {
@@ -137,8 +137,11 @@ async function generateWithFallback(
 }
 
 export async function POST(req: NextRequest) {
+  console.log("POST /api/chat endpoint hit");
   try {
+    console.log("Parsing request body...");
     const body: ChatRequestBody = await req.json();
+    console.log("Request body:", JSON.stringify(body, null, 2));
     const { 
       message, 
       messages = [], 
@@ -157,11 +160,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Message is required' }, { status: 400 });
     }
 
+    // Try to get character from built-in characters, but if not found, use provided character info
     let selectedCharacter;
     try {
       selectedCharacter = getCharacterById(characterId);
     } catch (error) {
       console.error("Error fetching character:", error);
+    }
+
+    // If no built-in character found but we have character name and personality, create a character object
+    if (!selectedCharacter && characterName && characterPersonality) {
+      selectedCharacter = {
+        id: characterId,
+        name: characterName,
+        shortName: characterName,
+        description: `A custom character named ${characterName}`,
+        personalityPrompt: characterPersonality,
+        tags: ['custom'],
+        category: 'Custom'
+      };
     }
 
     if (!selectedCharacter) {
@@ -378,31 +395,9 @@ Additional character guidelines:
 
 export async function GET() {
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
-    
-    const chats = await db.chat.findMany({
-      where: {
-        userId: session.user.id
-      },
-      include: {
-        character: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true
-          }
-        }
-      },
-      orderBy: {
-        updatedAt: "desc"
-      }
-    })
-    
-    return NextResponse.json(chats)
+    // Simple GET endpoint that just returns success
+    // This can be expanded later when proper auth and database are implemented
+    return NextResponse.json({ message: "Chat API is working" })
   } catch (error) {
     console.error("[CHATS_GET]", error)
     return new NextResponse("Internal Error", { status: 500 })

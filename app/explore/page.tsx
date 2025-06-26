@@ -7,7 +7,7 @@ import { getAllCharacters } from "@/lib/custom-characters"; // Add import for cu
 import CharacterCard from "@/components/character-card"; // Use alias path
 import { Input } from "@/components/ui/input"; // Use Shadcn Input
 import { Button } from "@/components/ui/button"; // Use Shadcn Button
-import { Search, Filter, ChevronRight, SlidersHorizontal, Sparkles, Plus, Trophy, Star, Fire, X } from "lucide-react";
+import { Search, Filter, ChevronRight, SlidersHorizontal, Sparkles, Plus, Trophy, Star, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +22,17 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/app/i18n/LanguageContext";
+
+// Extend the Character interface for explore page
+interface ExtendedCharacter extends Character {
+  rating?: number;
+  category?: string;
+  verified?: boolean;
+  totalChats?: number;
+  createdDate?: Date;
+  isCustom?: boolean;
+}
 
 // Generate a background gradient based on the character name
 function getAvatarGradient(name: string): string {
@@ -44,29 +55,31 @@ function getAvatarGradient(name: string): string {
 export default function ExplorePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { language, t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'rating' | 'popular' | 'newest'>('popular');
-  const [charactersForCards, setCharactersForCards] = useState<Character[]>([]);
+  const [charactersForCards, setCharactersForCards] = useState<ExtendedCharacter[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'default' | 'custom'>('all');
   const [loading, setLoading] = useState(true);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const isKurdish = language === 'ku';
 
   // Initialize from URL parameters if present
   useEffect(() => {
-    const filter = searchParams.get('filter');
+    const filter = searchParams?.get('filter');
     if (filter === 'trending') {
       setSortBy('newest');
     } else if (filter === 'popular') {
       setSortBy('popular');
     }
 
-    const searchQuery = searchParams.get('q');
+    const searchQuery = searchParams?.get('q');
     if (searchQuery) {
       setSearchTerm(searchQuery);
     }
 
-    const tag = searchParams.get('tag');
+    const tag = searchParams?.get('tag');
     if (tag) {
       setSelectedTag(tag);
     }
@@ -82,12 +95,12 @@ export default function ExplorePage() {
       
       return {
         ...char,
-        avatar: null, // Will be handled by CharacterCard component
         rating: parseFloat((4.2 + Math.random() * 0.8).toFixed(1)), // Random rating between 4.2-5.0
         category: char.category || char.tags[0] || "General", // Use category or first tag
         verified: !isCustom && index % 3 === 0, // Only built-in characters can be verified
         totalChats: Math.floor(Math.random() * 25000) + 5000, // Random popularity count
-        createdDate: isCustom ? new Date() : new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000) // Random date in last 90 days for built-in
+        createdDate: isCustom ? new Date() : new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000), // Random date in last 90 days for built-in
+        isCustom
       };
     });
 
@@ -102,12 +115,12 @@ export default function ExplorePage() {
         const isCustom = (char as any).isCustom;
         return {
           ...char,
-          avatar: null,
           rating: parseFloat((4.2 + Math.random() * 0.8).toFixed(1)),
           category: char.category || char.tags[0] || "General",
           verified: !isCustom && index % 3 === 0,
           totalChats: Math.floor(Math.random() * 25000) + 5000,
-          createdDate: isCustom ? new Date() : new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000)
+          createdDate: isCustom ? new Date() : new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000),
+          isCustom
         };
       }));
       setLoading(false);
@@ -130,7 +143,7 @@ export default function ExplorePage() {
   const filteredCharacters = useMemo(() => {
     // First filter by tab
     let filtered = charactersForCards.filter(char => {
-      const isCustom = (char as any).isCustom;
+      const isCustom = char.isCustom;
       
       if (activeTab === 'all') return true;
       if (activeTab === 'default') return !isCustom;
@@ -163,7 +176,7 @@ export default function ExplorePage() {
 
   // Count of custom characters
   const customCharCount = useMemo(() => {
-    return charactersForCards.filter(char => (char as any).isCustom).length;
+    return charactersForCards.filter(char => char.isCustom).length;
   }, [charactersForCards]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -189,16 +202,16 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10">
+    <div className="container mx-auto flex flex-col flex-grow p-4 md:p-6 space-y-6 overflow-y-auto pb-20 z-10" dir={isKurdish ? 'rtl' : 'ltr'}>
       <div className="text-center mb-4">
         <span className="inline-block px-4 py-1 bg-purple-900/50 rounded-full text-purple-300 text-sm font-medium mb-4">
-          DISCOVER
+          {t('discover')}
         </span>
         <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-          Explore Characters
+          {t('exploreCharactersTitle')}
         </h1>
         <p className="text-gray-200 max-w-2xl mx-auto">
-          Find the perfect AI companion to chat with from our collection of unique personalities.
+          {t('exploreCharactersDesc')}
         </p>
       </div>
       
@@ -209,10 +222,11 @@ export default function ExplorePage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-300" />
             <Input
               type="text"
-              placeholder="Search by name or description..."
+              placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={handleSearchChange}
               className="pl-10 bg-indigo-800/40 border-purple-500/20 placeholder:text-purple-300/70 text-white"
+              dir={isKurdish ? 'rtl' : 'ltr'}
             />
           </div>
           
@@ -221,28 +235,28 @@ export default function ExplorePage() {
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-1 bg-indigo-800/40 border-purple-500/20 hover:bg-purple-600/30 text-white">
                   <Filter className="h-4 w-4 mr-1" />
-                  Filters
+                  {t('filters')}
                   {selectedTag && <Badge variant="secondary" className="ml-1 bg-indigo-700/70">1</Badge>}
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-indigo-900/95 backdrop-blur-xl border border-purple-500/30 text-white max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-display">Filter Characters</DialogTitle>
+                  <DialogTitle className="text-2xl font-display">{t('filterCharacters')}</DialogTitle>
                   <DialogDescription className="text-purple-200">
-                    Customize your character search with these filters.
+                    {t('filterCharactersDesc')}
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-6 py-4">
                   {/* Character Type Tabs */}
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Character Type</h3>
+                    <h3 className="text-sm font-medium text-purple-200">{t('characterType')}</h3>
                     <Tabs defaultValue={activeTab} className="w-full" onValueChange={(value) => setActiveTab(value as any)}>
                       <TabsList className="bg-indigo-800/40 border border-purple-500/20 grid grid-cols-3">
-                        <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">All</TabsTrigger>
-                        <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">Built-in</TabsTrigger>
+                        <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">{t('all')}</TabsTrigger>
+                        <TabsTrigger value="default" className="data-[state=active]:bg-purple-600">{t('builtIn')}</TabsTrigger>
                         <TabsTrigger value="custom" className="flex items-center gap-1 data-[state=active]:bg-purple-600">
-                          Custom
+                          {t('custom')}
                           {customCharCount > 0 && (
                             <Badge variant="secondary" className="ml-1 bg-indigo-700/70">{customCharCount}</Badge>
                           )}
@@ -253,21 +267,21 @@ export default function ExplorePage() {
 
                   {/* Sort Options */}
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Sort By</h3>
+                    <h3 className="text-sm font-medium text-purple-200">{t('sortBy')}</h3>
                     <select 
                       className="w-full bg-indigo-800/40 border border-purple-500/20 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
                     >
-                      <option value="popular">Most Popular</option>
-                      <option value="rating">Highest Rated</option>
-                      <option value="newest">Newest First</option>
+                      <option value="popular">{t('mostPopular')}</option>
+                      <option value="rating">{t('highestRated')}</option>
+                      <option value="newest">{t('newestFirst')}</option>
                     </select>
                   </div>
 
                   {/* Tag Filters */}
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-purple-200">Character Tags</h3>
+                    <h3 className="text-sm font-medium text-purple-200">{t('characterTags')}</h3>
                     <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
                       <Button
                         variant={!selectedTag ? "default" : "outline"}
@@ -278,7 +292,7 @@ export default function ExplorePage() {
                         }
                         onClick={() => handleTagClick(null)}
                       >
-                        All
+                        {t('all')}
                       </Button>
                       {allTags.map(tag => (
                         <Button
@@ -308,14 +322,14 @@ export default function ExplorePage() {
                       setSortBy('popular');
                     }}
                   >
-                    Reset Filters
+                    {t('resetFilters')}
                   </Button>
                   <DialogClose asChild>
                     <Button 
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                       onClick={applyFilters}
                     >
-                      Apply Filters
+                      {t('applyFilters')}
                     </Button>
                   </DialogClose>
                 </div>
@@ -329,7 +343,7 @@ export default function ExplorePage() {
               onClick={() => router.push('/custom-characters')}
             >
               <Plus className="h-4 w-4" />
-              <span>Create</span>
+              <span>{t('createCharacter')}</span>
             </Button>
           </div>
         </div>
@@ -359,11 +373,11 @@ export default function ExplorePage() {
                 <CharacterCard character={char} />
                 
                 {/* Custom character badge */}
-                {(char as any).isCustom && (
+                {char.isCustom && (
                   <div className="mt-1 flex justify-center">
                     <Badge variant="outline" className="flex items-center gap-1 text-xs bg-indigo-800/40 border-purple-500/20 text-purple-300">
                       <Sparkles className="h-3 w-3" />
-                      Custom
+                      {t('custom')}
                     </Badge>
                   </div>
                 )}
@@ -373,16 +387,16 @@ export default function ExplorePage() {
         ) : (
           <div className="text-center py-16 border border-purple-500/20 rounded-xl bg-indigo-900/30 backdrop-blur-md">
             <Sparkles className="h-12 w-12 mx-auto mb-4 text-purple-400 opacity-50" />
-            <h3 className="text-xl font-semibold mb-2 text-purple-200">No Characters Found</h3>
+            <h3 className="text-xl font-semibold mb-2 text-purple-200">{t('noCharactersFound')}</h3>
             <p className="text-gray-300 max-w-md mx-auto mb-6">
-              Try adjusting your search or filters to find characters, or create your own custom character.
+              {t('noCharactersFoundDesc')}
             </p>
             <Button 
               onClick={() => router.push('/custom-characters')}
               className="bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)] mx-auto flex items-center gap-2 text-white"
             >
               <Plus className="h-4 w-4" />
-              Create Your Own Character
+              {t('createYourOwnCharacter')}
             </Button>
           </div>
         )}
